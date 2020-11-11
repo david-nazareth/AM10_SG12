@@ -10,7 +10,7 @@ National lockdowns and government restrictions in response to COVID-19 grounded 
 
 2. Compare the impact of COVID-19 on air traffic to previous crises in the airline industry such as the aftermath of the Eyjafjallajökull volcano eruption in April 2010.
 
-3. 
+3. To visualise the economic impact of COVID-19 on civil aviation
 
 ### Datasets:
 
@@ -18,7 +18,7 @@ National lockdowns and government restrictions in response to COVID-19 grounded 
 
 2.  Eurocontrol Performance Review Commission data - <https://ansperformance.eu/data/>
 
-3. 
+
 
 
 
