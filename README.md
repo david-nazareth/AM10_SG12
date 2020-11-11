@@ -2,7 +2,7 @@
 
 # STUDY GROUP 12, AM10 FINAL PROJECT PROPOSAL
 
-## Proposal
+### Proposal
 
 National lockdowns and government restrictions in response to COVID-19 grounded commercial airlines in many parts of the world in the first half of 2020. We aim to visualize the impact of COVID-19 on the airline industry by creating a series of static, dynamic and interactive plots. The main objectives of this project are as follows:
 
@@ -12,7 +12,7 @@ National lockdowns and government restrictions in response to COVID-19 grounded 
 
 3. 
 
-## Datasets:
+### Datasets:
 
 1. Crowdsourced air traffic data from The OpenSky Network 2020 - <https://zenodo.org/record/3974209#.X6uqfnUzbkt>
 
