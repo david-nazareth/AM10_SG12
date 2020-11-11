@@ -1,6 +1,6 @@
 
 
-# STUDY GROUP 12, AM10 FINAL PROJECT PROPOSAL
+# AM10 Final Project Proposal- Study Group 12
 
 ### Proposal
 
