@@ -8,9 +8,9 @@ National lockdowns and government restrictions in response to COVID-19 grounded 
 
 1. Visualise the impact of COVID-19 and government policy (travel restrictions) on all types of air traffic (commercial short/long haul, private, emergency services, military, cargo etc.) by creating time series and geospatial visualisations. 
 
-2. Compare the impact of COVID-19 on air traffic to previous crises in the airline industry such as the aftermath of the Eyjafjallajökull volcano eruption in April 2010.
+2. Compare the impact of the pandemic on air traffic to previous crises in the airline industry such as the aftermath of the Eyjafjallajökull volcano eruption in April 2010.
 
-3. To visualise the economic impact of COVID-19 on civil aviation
+3. To visualise the economic impact of travel restrictions on civil aviation
 
 ### Datasets:
 
