@@ -1,0 +1,19 @@
+Here is the link to download the MongoDb database obtained by running the Python script load_data_mongodb.py:
+
+https://kermorvancom-my.sharepoint.com/:f:/g/personal/brendan_kermorvan_com/Eq8OOEsAgfhBrtuxPc8YxLEBCc62DPEiaI-C4xmKrktvAw?e=sHs2UH
+
+To open it in MongoDb you need to:
+1. Download MongoDb Community Server from https://www.mongodb.com/try/download/community
+2. Open the installer to install MongoDb, during installation check the option to install MongoDb Compass as well (graphical interface to visualize data)
+3. Download MongoDb Database Tools from https://www.mongodb.com/try/download/database-tools
+4. Unzip/decompress the folder and put the content (you should have files like mongodump, mongorestore ...) in your MongoDb installation directory:
+  - On Windows: C:\Program Files\MongoDB\Server\4.4\bin
+  - On Mac OS: I'm not sure but should be /usr/local/var/mongodb
+5. Add your MongoDb installation directory to your path, to use MongoDb commands from anywhere on your system
+6. Download the MongoDb database from the link above, and unzip it
+7. Put the unzipped "dump" folder in your Downloads folder
+8. Open a terminal and cd to your download folder:
+  - On Windows: Press windows logo + R, type "cmd", press ENTER, type "cd Downloads"
+  - On Mac: I don't know but should be something similar :)
+9. Type the following command: "mongorestore --gzip dump/"
+10. Will take some time to load the db, then you can open MongoDb Compass, click "connect" and the data should be there
