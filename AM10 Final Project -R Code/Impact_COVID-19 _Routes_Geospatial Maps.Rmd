@@ -1,0 +1,59 @@
+---
+title: "Geospatial Impact"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(tidyverse)
+library(sf)
+library(rnaturalearth)
+library(lubridate)
+library(opencage)
+library(gridExtra)
+library(gganimate)
+library(png)
+library(gifsky)
+
+
+```
+
+# Load data
+
+```{r, fig.width=8, fig.height=6}
+
+european_2020_routes <- read_csv("Data/top_european_routes_2020.csv")
+
+#busiest_routes= c("EGLL-EHAM", "EHAM-EGLL", "EIDW-EGLL", "EGLL-EIDW", "ESSA-ENGM", "ENGM-ESSA" )
+
+european_2020_routes <-  european_2020_routes %>% 
+  filter(origin!=destination) %>% 
+  mutate(day= as_date(day, tz = NULL),
+         route= gsub(" ", "", paste(origin,"-", destination)))%>% 
+  filter(origin!="KJFK", destination!="KJFK")
+
+
+Europe <- ne_countries(scale = 'medium', type = 'map_units', returnclass = 'sf', continent="Europe")
+
+Europe <- sf::st_crop(Europe, xmin = -10, xmax = 20, ymin = 25, ymax = 62)
+
+p <- ggplot() +
+  geom_sf(data = Europe, size = 0.125) +
+  geom_curve(
+    data = european_2020_routes, 
+    aes(x = origin_lon, y = origin_lat, xend = dest_lon , yend = dest_lat),
+    curvature = 0.2, color= "#6a51a3", size=0.1)+
+  theme_void()
+
+p <- p+ transition_time(day) +
+  labs(title = "Day: {frame_time}")
+
+plot(p)
+
+```
+
+
