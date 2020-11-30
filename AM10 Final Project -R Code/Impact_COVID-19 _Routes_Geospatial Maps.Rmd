@@ -17,43 +17,225 @@ library(opencage)
 library(gridExtra)
 library(gganimate)
 library(png)
-library(gifsky)
-
+library(gifski)
+library(readxl)
+library(plotly)
+library(janitor)
+library(patchwork)
 
 ```
 
-# Load data
+# Load data and visualise it
 
-```{r, fig.width=8, fig.height=6}
+```{r, fig.width=10, fig.height=6}
 
 european_2020_routes <- read_csv("Data/top_european_routes_2020.csv")
 
-#busiest_routes= c("EGLL-EHAM", "EHAM-EGLL", "EIDW-EGLL", "EGLL-EIDW", "ESSA-ENGM", "ENGM-ESSA" )
 
 european_2020_routes <-  european_2020_routes %>% 
   filter(origin!=destination) %>% 
   mutate(day= as_date(day, tz = NULL),
          route= gsub(" ", "", paste(origin,"-", destination)))%>% 
-  filter(origin!="KJFK", destination!="KJFK")
-
+  filter(origin!="KJFK", destination!="KJFK") 
+  
 
 Europe <- ne_countries(scale = 'medium', type = 'map_units', returnclass = 'sf', continent="Europe")
 
-Europe <- sf::st_crop(Europe, xmin = -10, xmax = 20, ymin = 25, ymax = 62)
+Europe <- sf::st_crop(Europe, xmin = -15, xmax = 40, ymin = 25, ymax = 62)
 
 p <- ggplot() +
   geom_sf(data = Europe, size = 0.125) +
   geom_curve(
     data = european_2020_routes, 
     aes(x = origin_lon, y = origin_lat, xend = dest_lon , yend = dest_lat),
-    curvature = 0.2, color= "#6a51a3", size=0.1)+
+    curvature = 0.2, color= "#6a51a3", size=0.1, alpha=0.4)+
+  theme_void()+
+   labs(
+    title="Air traffic in Europe was hit hard after COVID-19 struck"
+  )
+
+p <- p+ transition_time(day) +
+  labs(title = "Day: {frame_time}")
+
+animate(p, nframes = 100, fps=3)
+
+
+
+```
+
+
+```{r, fig.width=12, fig.height=8}
+
+air_crises <- read_csv("Data/COVID_7D_Time series.csv") %>% 
+  janitor::clean_names() %>% 
+  rename(cases=daily_new_covid_19_cases_7_day_moving_avg)
+
+skimr::skim(air_crises)
+
+air_crises <- air_crises %>% 
+  mutate(
+          date= as.Date(date, format= "%b %d,%Y")
+  ) %>% 
+  select(-cases) %>% 
+  pivot_longer(cols= "x2010":"x2020", names_to = "line", values_to = "value") %>% 
+  filter(date<="2020-09-30")
+
+
+ggplot(air_crises, aes(x=date, y=value, color=line))+
+  geom_line()+
+  theme_minimal()+
+  theme(
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    plot.title = element_text(color="black", size=20, face="bold"),
+    plot.subtitle = element_text(color="black", size=16, face="plain"),
+    legend.text = element_text(size = 14), 
+    legend.title = element_text(size = 16)
+  )+
+  labs(
+    title="Virus much worse than Volcano!",
+    subtitle= "7 day moving average of number of daily flights in EuroControl member states",
+    color="Year"
+  )+
+  scale_color_manual(values= c("#3288bd","#1a9850" ,"#762a83"), labels = c("2010", "2019", "2020"))+
+   annotate("text", x= as.Date("2020-05-20"), y=20000, label= "Air travel disruption \nafter 2010 eruptions of \nEyjafjallajökull ") 
+  
+  
+
+```
+
+```{r}
+
+
+USA_2020_routes <- read_csv("Data/top_USA_routes_2020.csv")
+
+USA_2020_routes <-  USA_2020_routes %>% 
+  filter(origin!=destination) %>% 
+  mutate(day= as_date(day, tz = NULL),
+         route= gsub(" ", "", paste(origin,"-", destination)))
+  
+
+America <- ne_countries(scale = 'medium', type = 'map_units', returnclass = 'sf', continent="North America")
+
+America <- sf::st_crop(America, xmin = -130, xmax =-60 , ymin = 25, ymax = 50)
+
+p <- ggplot() +
+  geom_sf(data = America, size = 0.125) +
+  geom_curve(
+    data = USA_2020_routes, 
+    aes(x = origin_lon, y = origin_lat, xend = dest_lon , yend = dest_lat),
+    curvature = 0.2, color= "#6a51a3", size=0.1, alpha=0.4)+
   theme_void()
 
 p <- p+ transition_time(day) +
   labs(title = "Day: {frame_time}")
 
-plot(p)
+animate(p, nframes = 100, fps=3)
+
+p
+
+```
+```{r}
+
+flight_efficiency <- read_excel("Data/Flight_efficiency_data.xlsx") %>% 
+  clean_names() %>% 
+  filter(year %in% c(2019,2020))
+
+skimr::skim(flight_efficiency)
+
+flight_efficiency <- flight_efficiency %>% 
+  mutate(percentage_cdo= nbr_cdo_flights/nbr_flights_descent,
+         percentage_cco= nbr_cco_flights/nbr_flights_climb,
+         )
 
 ```
 
+
+```{r}
+
+stats_time_in_level_flight_desc <- flight_efficiency %>% 
+  group_by(year, month_mon) %>% 
+  summarise(avg_time_level_desc= mean(tot_time_level_seconds_descent),
+            sd_time_level_desc= sd(tot_time_level_seconds_descent)
+            )
+  
+  
+stats_time_in_level_flight_desc_coutries <- flight_efficiency %>% 
+  group_by(year, state_name) %>% 
+  summarise(avg_time_level_desc= mean(tot_time_level_seconds_descent),
+            sd_time_level_desc= sd(tot_time_level_seconds_descent)
+            )
+
+ggplot(stats_time_in_level_flight_desc_coutries, aes(x=avg_time_level_desc))+
+  geom_histogram()+
+  facet_wrap(~year)
+
+
+flight_efficiency %>% 
+  group_by(year) %>% 
+  summarise(avg_time_level_desc= mean(tot_time_level_seconds_descent),
+            sd_time_level_desc= sd(tot_time_level_seconds_descent)
+            )
+
+```
+
+```{r, fig.width=12, fig.height=8}
+
+cdo<- read_csv("Data/COVID_CDO_Page 1_Time series.csv") %>% 
+  clean_names() %>% 
+  mutate(
+          date_2= as.Date(date_2, format= "%b %d,%Y")
+  ) 
+
+p1 <- ggplot(cdo, aes(x=date_2, y=avg_time_in_level_flight_seconds, color=as.factor(year)),size=2)+
+  geom_line()+
+  theme_minimal()+
+  theme(
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    plot.title = element_text(color="black", size=20, face="bold"),
+    plot.subtitle = element_text(color="black", size=16, face="plain"),
+    legend.text = element_text(size = 14), 
+    legend.title = element_text(size = 16),
+    legend.position = "below"
+  )+
+  labs(
+    title="Improvement in vertical flight efficieny during CDO in 2020",
+    subtitle= "",
+    color="Year"
+  )+
+  scale_color_manual(values= c("#636363","#2c7fb8"), labels = c("2019", "2020"))
+  
+cco<- read_csv("Data/COVID_CCO_Page 1_Time series.csv") %>% 
+  clean_names() %>% 
+  mutate(
+          date_2= as.Date(date_2, format= "%b %d,%Y")
+  ) 
+
+p2 <- ggplot(cco, aes(x=date_2, y=avg_time_in_level_flight_seconds, color=as.factor(year)), size=2)+
+  geom_line()+
+  theme_minimal()+
+  theme(
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    plot.title = element_text(color="black", size=20, face="bold"),
+    plot.subtitle = element_text(color="black", size=16, face="plain"),
+    legend.text = element_text(size = 14), 
+    legend.title = element_text(size = 16),
+    legend.position = "none"
+    
+  )+
+  labs(
+    title="Improvement in vertical flight efficieny during CCO in 2020",
+    subtitle= "",
+    color="Year"
+  )+
+  scale_color_manual(values= c("#636363","#2c7fb8"), labels = c("2019", "2020"))
+  
+
+p1
+p2
+
+
+```
 
