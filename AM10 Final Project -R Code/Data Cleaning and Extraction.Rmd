@@ -1,0 +1,92 @@
+---
+title: "Data Extraction and Cleaning"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(janitor)
+library(mongolite)
+
+#connect to OpenSky database
+mng_conn <- mongo(collection='Master', db='OpenSky')
+
+mng_conn$info
+```
+# Extract top global routes
+
+```{r}
+
+#query flights on popular international routes by specifying origin and destination
+top_global_routes_2020 <- mng_conn$find(
+  query = '{"day": { "$gte" : { "$date" : "2020-02-01T00:00:00Z" }, 
+  "$lte" : { "$date" : "2020-05-01T00:00:00Z" }}, 
+  "origin" : {"$in":["KEWR", "WSSS","NZAA", "EGGL", "OTBD", "KLAX", "KJFK", " FAOR", "OMDB", "YSSY", "VHHH", "WMKK", "SBGL", "EDDF"]},
+  "destination" : {"$in":["KEWR", "WSSS","NZAA", "EGGL", "OTBD", "KLAX", "KJFK", " FAOR", "OMDB", "YSSY", "VHHH", "WMKK", "SBGL", "EDDF", "SBGR", "SAEZ"]}
+   }'
+)
+
+
+#extract latitude and longitude from coordinates
+for(i in 1:nrow(top_global_routes_2020))
+{
+  top_global_routes_2020$origin_lon[[i]]=top_global_routes_2020$coordinates_1[[i]][1]
+  top_global_routes_2020$origin_lat[[i]]=top_global_routes_2020$coordinates_1[[i]][2]
+  top_global_routes_2020$dest_lon[[i]]=top_global_routes_2020$coordinates_2[[i]][1]
+  top_global_routes_2020$dest_lat[[i]]=top_global_routes_2020$coordinates_2[[i]][2]
+  
+}
+
+#extract latitude and longitude from coordinates
+top_global_routes_2020 <- top_global_routes_2020 %>% 
+  select(-coordinates_1, -coordinates_2) %>% 
+  mutate( origin_lat= as.numeric(origin_lat),
+          origin_lon=as.numeric(origin_lon),
+          dest_lat=as.numeric(dest_lat),
+          dest_lon= as.numeric(dest_lon),
+    )
+  
+#write to csv file
+write_csv(top_global_routes_2020, "top_global_routes_2020.csv")
+
+#https://jeroen.github.io/mongolite/query-data.html
+
+```
+# Extract top european routes 
+
+```{r}
+
+#Query mongoDb by specifying origin and destination
+top_european_routes_2020 <- mng_conn$find(
+  query = '{"day": { "$gte" : { "$date" : "2020-01-01T00:00:00Z" }, 
+  "$lte" : { "$date" : "2020-05-01T00:00:00Z" }}, 
+  "origin" : {"$in":["LEMD", "LEBL", "EGLL","EIDW","KJFK", "ENGM", "ESSA", "EHAM", "LPPT", "LOWW", "EGCC","EGPH", "LIMC", "LIRF", "EDDB", "LFPG", "EDDM", "EDDF", "LSZH", "LSGG", "EPWA", "EBBR", "LNMC"]},
+  "destination" : {"$in":["LEMD", "LEBL", "EGLL","EIDW","KJFK", "ENGM", "ESSA", "EHAM", "LPPT", "LOWW", "EGCC","EGPH", "LIMC", "LIRF", "EDDB", "LFPG", "EDDM", "EDDF", "LSZH", "LSGG", "EPWA", "EBBR", "LNMC"]}
+   }'
+)
+
+#extract latitude and longitude from coordinates
+for(i in 1:nrow(top_european_routes_2020))
+{
+  top_european_routes_2020$origin_lon[[i]]=top_european_routes_2020$coordinates_1[[i]][1]
+  top_european_routes_2020$origin_lat[[i]]=top_european_routes_2020$coordinates_1[[i]][2]
+  top_european_routes_2020$dest_lon[[i]]=top_european_routes_2020$coordinates_2[[i]][1]
+  top_european_routes_2020$dest_lat[[i]]=top_european_routes_2020$coordinates_2[[i]][2]
+  
+}
+
+
+top_european_routes_2020 <- top_european_routes_2020 %>% 
+  select(-coordinates_1, -coordinates_2) %>% 
+  mutate( origin_lat= as.numeric(origin_lat),
+          origin_lon=as.numeric(origin_lon),
+          dest_lat=as.numeric(dest_lat),
+          dest_lon= as.numeric(dest_lon),
+    )
+  
+#write to csv file
+write_csv(top_european_routes_2020, "top_european_routes_2020.csv")
+
+```
+
