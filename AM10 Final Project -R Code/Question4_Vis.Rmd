@@ -1,0 +1,146 @@
+---
+title: "Question4_Vis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(lubridate)
+library(janitor)
+library(vroom)
+library(skimr)
+library(sf)
+library(tidyverse)
+library(lubridate)
+library(ggmap)
+library(ggrepel)
+library(gridExtra)
+library(pander)
+library(here)
+library(janitor)
+library(skimr)
+library(leaflet)
+library(tmap)
+library(tmaptools)
+library(hrbrthemes)
+library(cowplot)
+library(readxl)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+#dataset is already filtered for top 1000 airports and percentage change of travel volume is calculated for each months
+airport_data <- read_excel("Num_flights_per_airport_per_month_top1k_20201127_014108.xlsx")
+
+skim(airport_data)
+
+
+
+
+```
+
+```{r}
+
+airport_data <- airport_data %>%
+  pivot_longer(names_to = "year" , cols = Jan_YTD:Oct_YTD) %>%
+  filter(type=="large_airport")
+
+airports <- airport_data %>%
+  filter(airport=="SBGR" | airport=="EDDF" | airport=="EGLL" | airport=="KJFK" | airport=="VIDP" | airport=="ZGSZ" ) %>%
+ mutate(year = factor(year, levels=c("Jan_YTD","Feb_YTD", "Mar_YTD", 
+                                          "Apr_YTD", "May_YTD", "Jun_YTD", 
+                                          "Jul_YTD", "Aug_YTD", "Sep_YTD", "Oct_YTD"), ordered=TRUE)) 
+
+
+
+
+vis1 <- airports %>%
+  ggplot(aes(x=(year), y=as.numeric(value))) +
+   geom_col(width = 0.5, fill="#000088") +
+  facet_wrap(~airport, labeller = labeller(airport = c("EDDF" = "Frankfurt am Main Airport", "EGLL" = "London Heathrow Airport","KJFK" = "John F Kennedy International Airport", "SBGR" = "Guarulhos Sao Paulo", "VIDP" = "Indira Gandhi International Airport","ZGSZ" = "Shenzhen Bao'an International Airport"))) +
+  geom_hline(yintercept=0, color="orange") +
+  theme_minimal() +
+  labs(title= "Change of flight volume each months 2019 and 2020", subtitle = "Comparison among 6 airports", x= "Months", y="Percentage change between months 2019 and  2020") +
+  scale_x_discrete(labels = c("Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sep", "Oct"))
+vis1
+ 
+```
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+route_data <- read_excel("Num_flights_per_route_per_month_top10kroutes_20201127_011118.xlsx")
+
+skim(route_data)
+
+
+```
+
+
+```{r}
+route_data <- route_data %>%
+  pivot_longer(names_to = "year" , cols = Jan_YTD:Oct_YTD) %>%
+  filter(dest_type=="large_airport") %>%
+  mutate(year = factor(year, levels=c("Jan_YTD","Feb_YTD", "Mar_YTD", 
+                                          "Apr_YTD", "May_YTD", "Jun_YTD", 
+                                          "Jul_YTD", "Aug_YTD", "Sep_YTD", "Oct_YTD"), ordered=TRUE))
+  
+route <- route_data %>%
+filter(route=="SBGR-EGLL" | route=="EGLL-SBGR" |route=="EDDF-EGLL"| route=="EGLL-EDDF" |  route=="KJFK-EGLL" | route=="EGLL-KJFK" | route=="VIDP-EGLL" | route=="EGLL-VIDP")
+
+
+vis2 <- route %>%
+  ggplot(aes(x=(year), y=as.numeric(value))) +
+   geom_col(width = 0.5, fill="#000088") +
+  facet_wrap(~route, labeller = labeller(route = c("SBGR-EGLL" = "Sao Paulo - London", "EGLL-SBGR" = "London - Sao Paulo","EDDF-EGLL" = "Frankfurt - London", "EGLL-EDDF" = "London - Frankfurt", "KJFK-EGLL" = "New York - London","EGLL-KJFK" = "London - New York", "VIDP-EGLL" = "New Dehli - London", "EGLL-VIDP" = "London - New Dehli"))) +
+  geom_hline(yintercept=0, color="orange") +
+  theme_minimal() +
+  scale_x_discrete(labels = c("Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sep", "Oct"))
+vis2
+ 
+
+
+```
+```{r}
+model_data <- read_excel("Num_flights_per_model_per_month_20201127_021413.xlsx")
+
+skim(model_data)
+```
+```{r}
+
+model_data <- model_data %>%
+  pivot_longer(names_to = "year" , cols = Jan_YTD:Oct_YTD) %>%
+  mutate(year = factor(year, levels=c("Jan_YTD","Feb_YTD", "Mar_YTD", 
+                                          "Apr_YTD", "May_YTD", "Jun_YTD", 
+                                          "Jul_YTD", "Aug_YTD", "Sep_YTD", "Oct_YTD"), ordered=TRUE))
+  
+model<- model_data %>%
+filter(model=="A320 214" | model=="BOEING 737-8AS")
+
+
+vis3 <- model %>%
+  ggplot(aes(x=(year), y=as.numeric(value))) +
+   geom_col(width = 0.5, fill="#000088") +
+  facet_wrap(~model) +
+  geom_hline(yintercept=0, color="orange") +
+  theme_minimal()
+vis3
+ 
+
+
+```
+
+
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
