@@ -53,7 +53,7 @@ airport_data <- airport_data %>%
   filter(type=="large_airport")
 
 airports <- airport_data %>%
-  filter(airport=="SBGR" | airport=="EDDF" | airport=="EGLL" | airport=="KJFK" | airport=="VIDP" | airport=="ZGSZ" ) %>%
+  filter(airport=="SBGR" | airport=="EDDF" | airport=="EGLL" | airport=="KJFK" | airport=="VIDP" ) %>%
  mutate(year = factor(year, levels=c("Jan_YTD","Feb_YTD", "Mar_YTD", 
                                           "Apr_YTD", "May_YTD", "Jun_YTD", 
                                           "Jul_YTD", "Aug_YTD", "Sep_YTD", "Oct_YTD"), ordered=TRUE)) 
@@ -64,11 +64,14 @@ airports <- airport_data %>%
 vis1 <- airports %>%
   ggplot(aes(x=(year), y=as.numeric(value))) +
    geom_col(width = 0.5, fill="#000088") +
-  facet_wrap(~airport, labeller = labeller(airport = c("EDDF" = "Frankfurt am Main Airport", "EGLL" = "London Heathrow Airport","KJFK" = "John F Kennedy International Airport", "SBGR" = "Guarulhos Sao Paulo", "VIDP" = "Indira Gandhi International Airport","ZGSZ" = "Shenzhen Bao'an International Airport"))) +
+  facet_wrap(~airport, ncol = 2, labeller = labeller(airport = c("EDDF" = "Frankfurt am Main Airport", "EGLL" = "London Heathrow Airport","KJFK" = "John F Kennedy International Airport", "SBGR" = "Guarulhos Sao Paulo", "VIDP" = "Indira Gandhi International Airport"))) +
   geom_hline(yintercept=0, color="orange") +
   theme_minimal() +
-  labs(title= "Change of flight volume each months 2019 and 2020", subtitle = "Comparison among 6 airports", x= "Months", y="Percentage change between months 2019 and  2020") +
-  scale_x_discrete(labels = c("Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sep", "Oct"))
+  labs(title= "Percentage change of flight volume each months in 2019 and 2020", subtitle = "Comparison among 5 international airports", x= "", y="") +
+  scale_x_discrete(labels = c("Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sep", "Oct")) +
+  scale_y_continuous(labels = scales::percent) +
+  theme(plot.margin = unit(c(1, 1, 0, 0), "cm"), strip.text.x = element_text(size = 12, face = "bold"
+        ))
 vis1
  
 ```
@@ -94,8 +97,7 @@ route_data <- route_data %>%
   mutate(year = factor(year, levels=c("Jan_YTD","Feb_YTD", "Mar_YTD", 
                                           "Apr_YTD", "May_YTD", "Jun_YTD", 
                                           "Jul_YTD", "Aug_YTD", "Sep_YTD", "Oct_YTD"), ordered=TRUE))
-| route=="ZGSZ-ZUCK" | route=="ZUCK-ZGSZ"
-, "ZGSZ-ZUCK" = "Chongqin - Shenzhen", "ZUCK-ZGSZ" = "Shenzhen - Chongqin")
+
 
 route_domestic <- route_data %>%
 filter(route=="SBBR-SBGR" | route=="SBGR-SBBR" |route=="EGLL-EGPH"| route=="EGPH-EGLL" |  route=="KJFK-KLAX" | route=="KLAX-KJFK" | route=="VIDP-VABB" | route=="VABB-VIDP" | route =="EDDF-EDDM" | route=="EDDM-EDDF" )
@@ -104,16 +106,17 @@ filter(route=="SBBR-SBGR" | route=="SBGR-SBBR" |route=="EGLL-EGPH"| route=="EGPH
 vis4 <- route_domestic %>%
   ggplot(aes(x=(year), y=as.numeric(value))) +
    geom_col(width = 0.5, fill="#000088") +
-  facet_wrap(~route, labeller = labeller(route = c("SBBR-SBGR" = "Brasilia - Sao Paulo", "SBGR-SBBR" = "Sao Paulo - Brasilia","EGPH-EGLL" = "Edingburgh - London","EGLL-EGPH" = "London - Edingburgh", "KJFK-KLAX" = "New York - LA","KLAX-KJFK" = "LA - New York", "VIDP-VABB" = "New Dehli - Mumbai", "VABB-VIDP" = "Mumbai - New Dehli", "EDDF-EDDM" = "Frankfurt - Munich", "EDDM-EDDF" = "Munich - Frankfurt"))) +
+  scale_color_gradient(low = 'greenyellow', high = 'forestgreen') +
+  facet_wrap(~route, ncol=2, labeller = labeller(route = c("SBBR-SBGR" = "Brasilia - Sao Paulo", "SBGR-SBBR" = "Sao Paulo - Brasilia","EGPH-EGLL" = "Edingburgh - London","EGLL-EGPH" = "London - Edingburgh", "KJFK-KLAX" = "New York - LA","KLAX-KJFK" = "LA - New York", "VIDP-VABB" = "New Dehli - Mumbai", "VABB-VIDP" = "Mumbai - New Dehli", "EDDF-EDDM" = "Frankfurt - Munich", "EDDM-EDDF" = "Munich - Frankfurt"), margine=TRUE)) +
   geom_hline(yintercept=0, color="orange") +
   theme_minimal() +
-  scale_x_discrete(labels = c("Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sep", "Oct"))
+  scale_x_discrete(labels = c("Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sep", "Oct")) +
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank()) +
+   scale_y_continuous(labels = scales::percent) +
+  theme(plot.margin = unit(c(1, 1, 0, 0), "cm")) 
+  
 vis4
  
-
-
-| route =="WSSS-ZGSZ" | route=="ZGSZ-WSSS" 
-"WSSS-ZGSZ" = "Singapur - China", "ZGSZ-WSSS" = "China - Singapur"
 
 
   
@@ -127,7 +130,7 @@ vis2 <- route %>%
   facet_wrap(~route, labeller = labeller(route = c("SBGR-EGLL" = "Sao Paulo - London", "EGLL-SBGR" = "London - Sao Paulo","EDDF-EGLL" = "Frankfurt - London", "EGLL-EDDF" = "London - Frankfurt", "KJFK-EGLL" = "New York - London","EGLL-KJFK" = "London - New York", "VIDP-EGLL" = "New Dehli - London", "EGLL-VIDP" = "London - New Dehli" ))) +
   geom_hline(yintercept=0, color="orange") +
   theme_minimal() +
-  scale_x_discrete(labels = c("Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sep", "Oct"))
+  scale_x_discrete(labels = c("Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sep", "Oct")) 
 vis2
  
 #highlight two months per route
