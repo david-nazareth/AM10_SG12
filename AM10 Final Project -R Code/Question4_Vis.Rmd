@@ -94,15 +94,36 @@ route_data <- route_data %>%
   mutate(year = factor(year, levels=c("Jan_YTD","Feb_YTD", "Mar_YTD", 
                                           "Apr_YTD", "May_YTD", "Jun_YTD", 
                                           "Jul_YTD", "Aug_YTD", "Sep_YTD", "Oct_YTD"), ordered=TRUE))
+
+
+route_domestic <- route_data %>%
+filter(route=="SBBR-SBGR" | route=="SBGR-SBBR" |route=="EGLL-EGPH"| route=="EGPH-EGLL" |  route=="KJFK-KLAX" | route=="KLAX-KJFK" | route=="VIDP-VABB" | route=="VABB-VIDP" | route =="EDDF-EDDM" | route=="EDDM-EDDF" | route=="ZGSZ-ZUCK" | route=="ZUCK-ZGSZ")
+
+
+vis4 <- route_domestic %>%
+  ggplot(aes(x=(year), y=as.numeric(value))) +
+   geom_col(width = 0.5, fill="#000088") +
+  facet_wrap(~route, labeller = labeller(route = c("SBBR-SBGR" = "Brasilia - Sao Paulo", "SBGR-SBBR" = "Sao Paulo - Brasilia","EGPH-EGLL" = "Edingburgh - London","EGLL-EGPH" = "London - Edingburgh", "KJFK-KLAX" = "New York - LA","KLAX-KJFK" = "LA - New York", "VIDP-VABB" = "New Dehli - Mumbai", "VABB-VIDP" = "Mumbai - New Dehli", "EDDF-EDDM" = "Frankfurt - Munich", "EDDM-EDDF" = "Munich - Frankfurt", "ZGSZ-ZUCK" = "Chongqin - Shenzhen", "ZUCK-ZGSZ" = "Shenzhen - Chongqin"))) +
+  geom_hline(yintercept=0, color="orange") +
+  theme_minimal() +
+  scale_x_discrete(labels = c("Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sep", "Oct"))
+vis4
+ 
+
+
+
+
+
+
   
 route <- route_data %>%
-filter(route=="SBGR-EGLL" | route=="EGLL-SBGR" |route=="EDDF-EGLL"| route=="EGLL-EDDF" |  route=="KJFK-EGLL" | route=="EGLL-KJFK" | route=="VIDP-EGLL" | route=="EGLL-VIDP")
+filter(route=="SBGR-EGLL" | route=="EGLL-SBGR" |route=="EDDF-EGLL"| route=="EGLL-EDDF" |  route=="KJFK-EGLL" | route=="EGLL-KJFK" | route=="VIDP-EGLL" | route=="EGLL-VIDP" | route =="WSSS-ZGSZ" | route=="ZGSZ-WSSS")
 
 
 vis2 <- route %>%
   ggplot(aes(x=(year), y=as.numeric(value))) +
    geom_col(width = 0.5, fill="#000088") +
-  facet_wrap(~route, labeller = labeller(route = c("SBGR-EGLL" = "Sao Paulo - London", "EGLL-SBGR" = "London - Sao Paulo","EDDF-EGLL" = "Frankfurt - London", "EGLL-EDDF" = "London - Frankfurt", "KJFK-EGLL" = "New York - London","EGLL-KJFK" = "London - New York", "VIDP-EGLL" = "New Dehli - London", "EGLL-VIDP" = "London - New Dehli"))) +
+  facet_wrap(~route, labeller = labeller(route = c("SBGR-EGLL" = "Sao Paulo - London", "EGLL-SBGR" = "London - Sao Paulo","EDDF-EGLL" = "Frankfurt - London", "EGLL-EDDF" = "London - Frankfurt", "KJFK-EGLL" = "New York - London","EGLL-KJFK" = "London - New York", "VIDP-EGLL" = "New Dehli - London", "EGLL-VIDP" = "London - New Dehli", "WSSS-ZGSZ" = "Singapur - China", "ZGSZ-WSSS" = "China - Singapur" ))) +
   geom_hline(yintercept=0, color="orange") +
   theme_minimal() +
   scale_x_discrete(labels = c("Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sep", "Oct"))
