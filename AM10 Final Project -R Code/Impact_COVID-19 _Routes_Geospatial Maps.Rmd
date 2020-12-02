@@ -1,5 +1,5 @@
 ---
-title: "Impact of COVID-19 on Air Travel"
+title: "Impact of COVID-19 on Air Travel-1"
 output: html_document
 ---
 
@@ -27,7 +27,9 @@ library(rnaturalearthhires)
 
 ```
 
-# Impact on air-traffic in Europe
+# Impact on air-traffic -Geospatial
+
+## On major European routes
 
 ```{r, fig.width=12, fig.height=8}
 
@@ -58,7 +60,7 @@ p <- ggplot() +
   geom_curve(
     data = european_2020_routes, 
     aes(x = origin_lon, y = origin_lat, xend = dest_lon , yend = dest_lat),
-    curvature = 0.2, color= "#6a51a3", size=0.1, alpha=0.4)+
+    curvature = 0.2, color= "#2c7fb8", size=0.1, alpha=0.4)+
   theme_void()+
   theme(
     plot.title = element_text(color="black", size=16, face="bold"),
@@ -71,9 +73,46 @@ p <- p+ transition_time(day) +
   )
 
 #Use gganimate to create an animated visualization
-animate(p, nframes = 80, fps=2, height = 800, width =1200)
+animate(p, nframes = 80, fps=7, height = 800, width =1200)
 
 
+
+```
+## On major and long global routes
+
+```{r}
+
+#load data on global routes extracted from MongoDb
+global_2020_routes <- read_csv("Data/top_global_routes_2020.csv")
+
+global_2020_routes <-  global_2020_routes %>% 
+  filter(origin!=destination) %>% 
+  mutate(day= as_date(day, tz = NULL),
+         route= gsub(" ", "", paste(origin,"-", destination)))
+
+#load shape file of the earth from rnaturalearthhires
+world <- ne_countries(scale = "large", returnclass = "sf") %>%
+  filter(name != "Antarctica") 
+
+p <- ggplot() +
+  geom_sf(data = world , size = 0.125) +
+  geom_curve(
+    data = global_2020_routes, 
+    aes(x = origin_lon, y = origin_lat, xend = dest_lon , yend = dest_lat),
+    curvature = 0.2, color= "#2c7fb8", size=0.1, alpha=0.4)+
+  theme_void()+
+  theme(
+    plot.title = element_text(color="black", size=16, face="bold"),
+    plot.subtitle = element_text(color="black", size=14, face="plain")
+  )
+
+p <- p+ transition_time(day) +
+  labs(title = "COVID-19 hit long international routes very hard",
+       subtitle= "Daily intercontinental flights between 31 major global airports \ndropped sharply in late March- early April  \n\nDate: {format(frame_time, '%b %d, %Y')}"
+  )
+
+#Use gganimate to create an animated visualization
+animate(p, nframes = 80, fps=7, height = 800, width =1200)
 
 ```
 
@@ -105,8 +144,10 @@ ggplot(air_crises, aes(x=date, y=value, color=line))+
   geom_line()+
   theme_minimal()+
   theme(
-    axis.title.x = element_blank(),
     axis.title.y = element_blank(),
+    axis.title.x =element_blank(),
+    axis.text.x = element_text(color="black", size=12, face="plain"),
+    axis.text.y= element_text(color="black", size=12, face="plain"),
     plot.title = element_text(color="black", size=20, face="bold"),
     plot.subtitle = element_text(color="black", size=16, face="plain"),
     legend.text = element_text(size = 12), 
@@ -114,7 +155,7 @@ ggplot(air_crises, aes(x=date, y=value, color=line))+
   )+
   labs(
     title="Virus much worse than Volcano!",
-    subtitle= "7 day moving average of number of daily flights in EuroControl member states",
+    subtitle= "7 day moving average of number of daily flights in EuroControl member states\n\n",
     color="Year"
   )+
   #define color and labels manually
@@ -125,39 +166,6 @@ ggplot(air_crises, aes(x=date, y=value, color=line))+
   scale_y_continuous(breaks=c(10000,20000,30000), labels= c("10k","20k","30k"))
 
 
-
-```
-
-
-
-```{r, include=FALSE, eval=FALSE}
-
-
-global_2020_routes <- read_csv("Data/top_global_routes_2020.csv")
-
-global_2020_routes <-  global_2020_routes %>% 
-  filter(origin!=destination) %>% 
-  mutate(day= as_date(day, tz = NULL),
-         route= gsub(" ", "", paste(origin,"-", destination)))
-
-
-world <- ne_countries(scale = "medium", returnclass = "sf") %>%
-  filter(name != "Antarctica") 
-
-p <- ggplot() +
-  geom_sf(data = world , size = 0.125) +
-  geom_curve(
-    data = global_2020_routes, 
-    aes(x = origin_lon, y = origin_lat, xend = dest_lon , yend = dest_lat),
-    curvature = 0.2, color= "#6a51a3", size=0.1, alpha=0.4)+
-  theme_void()
-
-p <- p+ transition_time(day) +
-  labs(title = "Date: {frame_time, '%b %d, %Y'}")
-
-animate(p, nframes = 300, fps=3)
-
-p
 
 ```
 
@@ -216,6 +224,9 @@ p1 <- ggplot(flight_efficiency_plot, aes(x=year, y=avg_time_level_desc, colour=y
   theme(
     #clean up text sizes of various elements in the graph
     axis.title.y = element_blank(),
+    axis.title.x = element_text(size = 13),
+    axis.text.x = element_text(color="black", size=12, face="plain"),
+    axis.text.y= element_text(color="black", size=12, face="plain"),
     plot.title = element_text(color="black", size=16, face="bold"),
     plot.subtitle = element_text(color="black", size=14, face="plain"),
     legend.text = element_text(size = 12), 
@@ -253,6 +264,9 @@ p2 <- ggplot(flight_efficiency_plot, aes(x=year, y=avg_time_level_asc, colour=ye
   theme(
     #clean up text sizes of various elements in the graph
     axis.title.y = element_blank(),
+    axis.title.x = element_text(size = 13),
+    axis.text.x = element_text(color="black", size=12, face="plain"),
+    axis.text.y= element_text(color="black", size=12, face="plain"),
     plot.title = element_text(color="black", size=16, face="bold"),
     plot.subtitle = element_text(color="black", size=14, face="plain"),
     legend.text = element_text(size = 12), 
@@ -279,6 +293,8 @@ ggplot(flight_efficiency_desc, aes(x=date_2, y=avg_time_in_level_flight_seconds,
   theme(
     axis.title.x = element_blank(),
     axis.title.y = element_blank(),
+    axis.text.x = element_text(color="black", size=12, face="plain"),
+    axis.text.y= element_text(color="black", size=12, face="plain"),
     plot.title = element_text(color="black", size=16, face="bold"),
     plot.subtitle = element_text(color="black", size=14, face="plain"),
     legend.text = element_text(size = 12), 
@@ -297,8 +313,10 @@ ggplot(flight_efficiency_asc, aes(x=date_2, y=avg_time_in_level_flight_seconds, 
   geom_line()+
   theme_minimal()+
   theme(
-    axis.title.x = element_blank(),
     axis.title.y = element_blank(),
+    axis.title.x = element_blank(),
+    axis.text.x = element_text(color="black", size=12, face="plain"),
+    axis.text.y= element_text(color="black", size=12, face="plain"),
     plot.title = element_text(color="black", size=16, face="bold"),
     plot.subtitle = element_text(color="black", size=14, face="plain"),
     legend.text = element_text(size = 12), 
@@ -351,22 +369,26 @@ ggplot(taxi_out_time_plot, aes(x=year, y=avg_add_taxi, colour=is_2020)) +
   theme_minimal()+
   coord_flip()+
   theme(
-    axis.title.y = element_blank(),
     plot.title = element_text(color="black", size=16, face="bold"),
     plot.subtitle = element_text(color="black", size=14, face="plain"),
     legend.text = element_text(size = 12), 
     legend.title = element_text(size = 13),
-    legend.position = "none"
+    legend.position = "none",
+    axis.title.y = element_blank(),
+    axis.title.x = element_text(size = 13),
+    axis.text.x = element_text(color="black", size=12, face="plain"),
+    axis.text.y= element_text(color="black", size=12, face="plain")
   )+
   scale_color_manual(values= c("#636363","#2c7fb8"))
 
 
 ```
+
 ```{r, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
 
 
 taxi_out_time_apt <- taxi_out_time %>% 
-  filter(year %in% c(2019,2020)) %>% 
+  filter(month_num>=6, month_num<=9, year %in% c(2019,2020)) %>% 
   pivot_wider(names_from = "year", values_from= "avg_additional_taxi") %>% 
   mutate(airport_w_code= paste(apt_name, "-", apt_icao)) %>% 
   group_by(airport_w_code, month_num) %>% 
@@ -382,17 +404,17 @@ taxi_out_time_apt <- taxi_out_time %>%
             count=n(),
             percentage_change= (mean_covid_t- mean_pre_covid_t)/mean_pre_covid_t
   ) %>% 
-  filter(count==7) %>% 
+  filter(count==4) %>% 
   arrange(percentage_change) %>% 
-  head(10)
+  head(20)
 
 
 ggplot(taxi_out_time_apt, aes(x=fct_reorder(airport_w_code, percentage_change, .desc = TRUE), y=percentage_change))+
-  geom_col()+
+  geom_col(fill= "#2c7fb8")+
   coord_flip()+
   labs(
-    title="Top 10 airports that saw the largest decrease in additional taxi-out time",
-    subtitle= "Percentage change in mean additional taxi-out time between 2020 and 2019 (March to September) \n",
+    title="Top 20 airports that saw the largest decrease in additional taxi-out time",
+    subtitle= "Percentage change in mean additional taxi-out time between 2020 and 2019 (June to September) \n",
     caption= "Source: Eurocontrol Network"
   ) + 
   theme_minimal()+
@@ -401,12 +423,11 @@ ggplot(taxi_out_time_apt, aes(x=fct_reorder(airport_w_code, percentage_change, .
     axis.title.x = element_blank(),
     plot.title = element_text(color="black", size=16, face="bold"),
     plot.subtitle = element_text(color="black", size=14, face="plain"),
-    axis.text.x = element_text(color="black", size=13, face="plain"),
-    axis.text.y= element_text(color="black", size=13, face="plain"),
+    axis.text.x = element_text(color="black", size=12, face="plain"),
+    axis.text.y= element_text(color="black", size=12, face="plain")
   )+
   scale_y_continuous(labels = scales::percent)
 
-
-
 ```
+
 
