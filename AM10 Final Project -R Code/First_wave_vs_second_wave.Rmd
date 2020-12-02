@@ -1,0 +1,120 @@
+---
+title: "First wave vs. second wave"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+
+library(tidyverse)
+library(ggplot2)
+library(scales)
+
+```
+
+# Establish database
+
+Extract data from file "monthly_covid_data.xlsx" to establish a database for the number of  confirmed cases in selected countries.
+
+```{r}
+rm(list=ls())
+# Load data
+confirmed_case <- readxl::read_xlsx("data/monthly_covid_confirmed_cases_selected.xlsx")
+confirmed_case <- as.data.frame(confirmed_case[1:10,1:12])
+colnames(confirmed_case)[1] <- c("month")
+confirmed_case[,1] <- c("01","02","03","04","05","06","07","08","09","10")
+
+# Convert the dataframe into tidy form
+tidy_confirmed_case  <- confirmed_case %>% 
+  pivot_longer(cols="South_Africa":"Brazil",
+               names_to = "Country", 
+               values_to = "confirmed_cases")
+
+```
+
+## Identify countries that are experiencing the second wave
+
+```{r}
+# plot the confirmed cases in several countries around the world
+
+ggplot(tidy_confirmed_case, 
+       aes(x=month, y=confirmed_cases, group = Country, color = Country)) + 
+  geom_line(size=1)+
+  # geom_path()+
+  # geom_point()+
+  theme_bw()+
+  labs(
+    title = "Monthly confirmed cases per country",
+    y="confirmed_cases",
+    color= "Countries"
+  )+
+  theme(
+    axis.title.x=element_blank(),
+    legend.title = element_blank()
+  )+
+ scale_y_continuous(label = comma) 
+
+# exclude countries that are still experiencing the first wave, plot again
+confirmed_case_selected <-
+  confirmed_case[,c("month","Italy","France","Spain","German","UK")]
+
+tidy_confirmed_case_selected  <- confirmed_case_selected %>% 
+  pivot_longer(cols="Italy":"UK",
+               names_to = "Country", 
+               values_to = "confirmed_cases")
+
+ggplot(tidy_confirmed_case_selected, 
+       aes(x=month, y=confirmed_cases, group = Country, color = Country)) + 
+  geom_line(size=1)+
+  theme_bw()+
+  labs(
+    title = "Monthly confirmed cases in countris experiencing the second wave",
+    y="confirmed_cases",
+    color= "Countries"
+  )+
+  theme(
+    axis.title.x=element_blank(),
+    legend.title = element_blank()
+  )+
+ scale_y_continuous(label = comma) 
+
+```
+
+## compare total flights and confirmed cases in selected countries 
+```{r}
+# import the flights data
+
+number_flights <- as.data.frame(readxl::read_xlsx("data/Num_flights_per_country_by_routes.xlsx"))
+number_flights[,1] <- c("01","02","03","04","05","06","07","08","09","10")
+
+tidy_number_flights  <- number_flights %>% 
+  pivot_longer(
+               cols="France":"German",
+               names_to = "Country", 
+               values_to= "number_of_flights"
+  ) 
+tidy_number_flights <- tidy_number_flights %>%
+  rename(month=Month)
+
+combined_data <- left_join(tidy_number_flights,tidy_confirmed_case_selected,by=c("month","Country"))
+
+
+combined_data %>%
+  ggplot(aes(x=month))+
+  geom_line(aes(y=number_flights)) +
+  geom_line(aes(y=confirmed_cases/2)) + # rescale this variable
+  geom_line(size=1) +
+  facet_wrap(~Country)+
+  labs(
+    title = "Trend contrast"
+  )+
+  theme(
+    axis.title.x=element_blank(),
+    legend.title = element_blank())+
+    scale_y_continuous(label = comma, sec.axis = sec_axis(~./5, name = "Flights"))
+
+
+```
