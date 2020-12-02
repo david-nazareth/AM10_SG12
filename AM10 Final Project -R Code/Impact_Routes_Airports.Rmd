@@ -1,5 +1,5 @@
 ---
-title: "Question4_Vis"
+title: "Impact Covid on Airports and Routes"
 output: html_document
 ---
 
@@ -31,23 +31,16 @@ library(patchwork)
 library(grid)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+# Aiport Dataset
 
 ```{r cars}
 #dataset is already filtered for top 1000 airports and percentage change of travel volume is calculated for each months
-airport_data <- read_excel("Num_flights_per_airport_per_month_top1k_20201127_014108.xlsx")
+airport_data <- read_excel("Data/Num_flights_per_airport_per_month_top1k_20201127_014108.xlsx")
 
 skim(airport_data)
 
-
-
-
 ```
-
+# Cleaning and Visualisation of Airport Data
 ```{r}
 #pivot longer the dataframe
 airport_data <- airport_data %>%
@@ -82,21 +75,19 @@ vis1
 ```
 
 
-## Including Plots
-
-You can also embed plots, for example:
+# Routes Dataset
 
 ```{r pressure, echo=FALSE}
-route_data <- read_excel("Num_flights_per_route_per_month_top10kroutes_20201127_011118.xlsx")
+route_data <- read_excel("Data/Num_flights_per_route_per_month_top10kroutes_20201127_011118.xlsx")
 
 skim(route_data)
 
 
 ```
 
-
+# Cleaning and Visualisation of Routes Data
 ```{r}
-#picot longer dataframe
+#pivot longer dataframe
 route_data <- route_data %>%
   pivot_longer(names_to = "year" , cols = Jan_YTD:Oct_YTD) %>%
   filter(dest_type=="large_airport") %>%
@@ -104,9 +95,6 @@ route_data <- route_data %>%
                                           "Apr_YTD", "May_YTD", "Jun_YTD", 
                                           "Jul_YTD", "Aug_YTD", "Sep_YTD", "Oct_YTD"), ordered=TRUE))
 
-
-
- 
 
 
 #filter for London Sao Paulo route
@@ -222,5 +210,3 @@ patchwork2 + plot_annotation(
 ```
 
 
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
