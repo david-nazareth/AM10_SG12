@@ -1,6 +1,6 @@
 
 
-# AM10 Final Project Proposal- Study Group 12
+# AM10 Final Project- Study Group 12
 
 ### Objectives of the project:
 
