@@ -68,7 +68,7 @@ p <- ggplot() +
 p <- p+ transition_time(day) +
   labs(title = "Air traffic all but dissapeared in European airspace after COVID-19 struck",
        subtitle= "Daily flights between 21 major airports dropped sharply in late March \n\nDate: {format(frame_time, '%b %d, %Y')}"
-       )
+  )
 
 #Use gganimate to create an animated visualization
 animate(p, nframes = 80, fps=2, height = 800, width =1200)
@@ -81,17 +81,22 @@ animate(p, nframes = 80, fps=2, height = 800, width =1200)
 
 ```{r, fig.width=12, fig.height=8}
 
+#load data on 7D moving averages of flights for 2010,2019, 2020
 air_crises <- read_csv("Data/COVID_7D_Time series.csv") %>% 
+  #clean column names
   janitor::clean_names() %>% 
   rename(cases=daily_new_covid_19_cases_7_day_moving_avg)
 
+#skim to view the data
 skimr::skim(air_crises)
+
 
 air_crises <- air_crises %>% 
   mutate(
     date= as.Date(date, format= "%b %d,%Y")
   ) %>% 
   select(-cases) %>% 
+  #pivot longer for to facilitate visualisation in ggplot
   pivot_longer(cols= "x2010":"x2020", names_to = "line", values_to = "value") %>% 
   filter(date<="2020-09-30")
 
@@ -104,16 +109,19 @@ ggplot(air_crises, aes(x=date, y=value, color=line))+
     axis.title.y = element_blank(),
     plot.title = element_text(color="black", size=20, face="bold"),
     plot.subtitle = element_text(color="black", size=16, face="plain"),
-    legend.text = element_text(size = 14), 
-    legend.title = element_text(size = 16)
+    legend.text = element_text(size = 12), 
+    legend.title = element_blank()
   )+
   labs(
     title="Virus much worse than Volcano!",
     subtitle= "7 day moving average of number of daily flights in EuroControl member states",
     color="Year"
   )+
+  #define color and labels manually
   scale_color_manual(values= c("#3288bd","#1a9850" ,"#762a83"), labels = c("2010", "2019", "2020"))+
+  #adding a text annotation to draw attention to the 2010 crises
   annotate("text", x= as.Date("2020-05-20"), y=20000, label= "Air travel disruption \nafter 2010 eruptions of \nEyjafjallajökull ") +
+  #cleaning up 0's on the y axis
   scale_y_continuous(breaks=c(10000,20000,30000), labels= c("10k","20k","30k"))
 
 
@@ -122,7 +130,7 @@ ggplot(air_crises, aes(x=date, y=value, color=line))+
 
 
 
-```{r}
+```{r, include=FALSE, eval=FALSE}
 
 
 global_2020_routes <- read_csv("Data/top_global_routes_2020.csv")
@@ -152,10 +160,12 @@ animate(p, nframes = 300, fps=3)
 p
 
 ```
-# Impact on vertical flight efficiency and additional taxi time
+
+# Impact on vertical flight efficiency and additional taxi-out time
 
 ```{r}
 
+#load data on flight efficiency during descent
 flight_efficiency_desc<- read_csv("Data/COVID_CDO_Page 1_Time series.csv") %>% 
   clean_names() %>% 
   mutate(
@@ -163,6 +173,7 @@ flight_efficiency_desc<- read_csv("Data/COVID_CDO_Page 1_Time series.csv") %>%
     year=as.factor(year)
   ) 
 
+#load data on flight efficiency during ascent
 flight_efficiency_asc<- read_csv("Data/COVID_CCO_Page 1_Time series.csv") %>% 
   clean_names() %>% 
   mutate(
@@ -173,30 +184,37 @@ flight_efficiency_asc<- read_csv("Data/COVID_CCO_Page 1_Time series.csv") %>%
 ```
 
 
-```{r, fig.width=12, fig.height=8}
+```{r, fig.width=12, fig.height=10}
 
+#calculate 99% confidence intervals for mean time level during CDO
 flight_efficiency_plot <- flight_efficiency_desc %>% 
   group_by(year) %>% 
   summarise(avg_time_level_desc= mean(avg_time_in_level_flight_seconds,na.rm=TRUE),
             sd_time_level_desc= sd(avg_time_in_level_flight_seconds, na.rm=TRUE),
             count = n(),
             se_time_level_desc = sd_time_level_desc/sqrt(count),
-            t_critical = qt(0.999, count-1), 
+            #compute t-critical value
+            t_critical = qt(0.99, count-1), 
             margin_of_error = t_critical * se_time_level_desc,
-            lower_bound = round((avg_time_level_desc - t_critical * se_time_level_desc),digits=2),
-            upper_bound = round((avg_time_level_desc+ t_critical * se_time_level_desc), digits=2)
-  ) %>% 
-  mutate(is_2020= as.factor(ifelse(year==2020,1,0)))
+            #calculate upper and lower bound of the confidence interval
+            lower_bound = round((avg_time_level_desc - margin_of_error),digits=2),
+            upper_bound = round((avg_time_level_desc+ margin_of_error), digits=2)
+  ) 
 
 
-ggplot(flight_efficiency_plot, aes(x=year, y=avg_time_level_desc, colour=is_2020)) +
+#plot the 99% confidence intervals for mean time level during CDO
+p1 <- ggplot(flight_efficiency_plot, aes(x=year, y=avg_time_level_desc, colour=year)) +
   geom_point(size=3) +
+  #create the error bar using the confidence intervals calculated in previous block
   geom_errorbar(width=.5, aes(ymin=lower_bound, ymax=upper_bound),  size= 1) + 
-  labs( y= "Mean Time Level During CDO (seconds)", 
-       title="Vertical flight efficiency during CDO was significantly lower in 2020") + 
+  labs( y= "Mean time in level flight (seconds)", 
+        title="Vertical flight efficiency is significantly higher in 2020",
+        subtitle= "99% confidence intervals of mean time in level flight across EuroControl member states \n\nDuring continuous descent operations (Landing)"
+  ) + 
   theme_minimal()+
   coord_flip()+
-   theme(
+  theme(
+    #clean up text sizes of various elements in the graph
     axis.title.y = element_blank(),
     plot.title = element_text(color="black", size=16, face="bold"),
     plot.subtitle = element_text(color="black", size=14, face="plain"),
@@ -206,28 +224,34 @@ ggplot(flight_efficiency_plot, aes(x=year, y=avg_time_level_desc, colour=is_2020
   )+
   scale_color_manual(values= c("#636363","#2c7fb8"))
 
+#calculate 99% confidence intervals for mean time level during CCO
 flight_efficiency_plot <- flight_efficiency_asc %>% 
   group_by(year) %>% 
   summarise(avg_time_level_asc= mean(avg_time_in_level_flight_seconds,na.rm=TRUE),
             sd_time_level_asc= sd(avg_time_in_level_flight_seconds, na.rm=TRUE),
             count = n(),
             se_time_level_asc = sd_time_level_asc/sqrt(count),
-            t_critical = qt(0.999, count-1), 
+            #compute t-critical value and margin of error
+            t_critical = qt(0.99, count-1), 
             margin_of_error = t_critical * se_time_level_asc,
             lower_bound = round((avg_time_level_asc - t_critical * se_time_level_asc),digits=2),
             upper_bound = round((avg_time_level_asc + t_critical * se_time_level_asc), digits=2)
-  ) %>% 
-  mutate(is_2020= as.factor(ifelse(year==2020,1,0)))
+  ) 
 
-
-ggplot(flight_efficiency_plot, aes(x=year, y=avg_time_level_asc, colour=is_2020)) +
+#plot the 99% confidence intervals for mean time level during CCO
+p2 <- ggplot(flight_efficiency_plot, aes(x=year, y=avg_time_level_asc, colour=year)) +
   geom_point(size=3) +
+  #create the error bar using the confidence intervals calculated in previous block
   geom_errorbar(width=.5, aes(ymin=lower_bound, ymax=upper_bound),  size= 1) + 
-  labs( y= "Mean Time Level During CCO (seconds)", 
-       title="Vertical flight efficiency during CCO was significantly lower in 2020") + 
+  labs( y= "Mean time in level flight (seconds)",
+        title="",
+        subtitle= "\n\nDuring continuous climb operations (Takeoff)",
+        caption="Source: Eurocontrol Network"
+  )+
   theme_minimal()+
   coord_flip()+
-   theme(
+  theme(
+    #clean up text sizes of various elements in the graph
     axis.title.y = element_blank(),
     plot.title = element_text(color="black", size=16, face="bold"),
     plot.subtitle = element_text(color="black", size=14, face="plain"),
@@ -237,12 +261,18 @@ ggplot(flight_efficiency_plot, aes(x=year, y=avg_time_level_asc, colour=is_2020)
   )+
   scale_color_manual(values= c("#636363","#2c7fb8"))
 
+#place plots one on top of the other using patchwork
+p1/p2
 
 ```
 
 ```{r, fig.width=12, fig.height=8}
 
+#Create time-series plots of mean time level during CCO and CDO
+# To read up on Continuous climb and descent operations visit
+#https://www.eurocontrol.int/concept/continuous-climb-and-descent-operations
 
+#Tine series plot for CDO
 ggplot(flight_efficiency_desc, aes(x=date_2, y=avg_time_in_level_flight_seconds, color=as.factor(year)),size=2)+
   geom_line()+
   theme_minimal()+
@@ -252,17 +282,17 @@ ggplot(flight_efficiency_desc, aes(x=date_2, y=avg_time_in_level_flight_seconds,
     plot.title = element_text(color="black", size=16, face="bold"),
     plot.subtitle = element_text(color="black", size=14, face="plain"),
     legend.text = element_text(size = 12), 
-    legend.title = element_text(size = 13)
+    legend.title = element_blank()
   )+
   labs(
     title="COVID-19 improved vertical flight efficieny during Continuous Descent Operations (CDO)",
     subtitle= "Average time in level flight (in seconds) for aircrafts in EuroControl member states",
-    color="Year"
+    caption="Source: Eurocontrol Network"
   )+
   scale_color_manual(values= c("#636363","#2c7fb8"), labels = c("2019", "2020"))
 
 
-
+#Tine series plot for CCO
 ggplot(flight_efficiency_asc, aes(x=date_2, y=avg_time_in_level_flight_seconds, color=as.factor(year)), size=2)+
   geom_line()+
   theme_minimal()+
@@ -272,26 +302,28 @@ ggplot(flight_efficiency_asc, aes(x=date_2, y=avg_time_in_level_flight_seconds, 
     plot.title = element_text(color="black", size=16, face="bold"),
     plot.subtitle = element_text(color="black", size=14, face="plain"),
     legend.text = element_text(size = 12), 
-    legend.title = element_text(size = 13)
+    legend.title = element_blank()
   )+
   labs(
     title="COVID-19 improved vertical flight efficieny during Continuous Climb Operations (CCO)",
     subtitle= "Average time in level flight (in seconds) for aircrafts in EuroControl member states",
-    color="Year"
+    caption="Source: Eurocontrol Network"
   )+
   scale_color_manual(values= c("#636363","#2c7fb8"), labels = c("2019", "2020"))
 
 ```
 ```{r, fig.width=12, fig.height=8}
 
+#load data on additional taxi-out time
 taxi_out_time<- read_excel("Data/Taxi Out Time.xlsx") %>% 
   clean_names() %>% 
   mutate(year=as.factor(year),
+         #calculate average additional taxi-out time
          avg_unimpeded_taxi= time_txo_unimp_2/ flt_txo_unimp_2,
          avg_additional_taxi= time_txo_add_2/ flt_txo_unimp_2) %>% 
   filter(month_num>=3, month_num<=9, year %in% c(2018,2019,2020))
 
-
+#compute 99% confidence intervals
 taxi_out_time_plot <- taxi_out_time %>% 
   group_by(year) %>% 
   summarise(avg_add_taxi= mean(avg_additional_taxi,na.rm=TRUE),
@@ -300,20 +332,25 @@ taxi_out_time_plot <- taxi_out_time %>%
             se_add_taxi = sd_add_taxi/sqrt(count),
             t_critical = qt(0.999, count-1), 
             margin_of_error = t_critical * se_add_taxi,
+            #calculate lower and upper bounds using the formula
             lower_bound = round((avg_add_taxi - t_critical * se_add_taxi),digits=2),
             upper_bound = round((avg_add_taxi + t_critical * se_add_taxi), digits=2)
   ) %>% 
   mutate(is_2020= as.factor(ifelse(year==2020,1,0)))
 
-
+#display 99% confidence intervals visually to show difference between taxi-out times in 2020 vs 2019
 ggplot(taxi_out_time_plot, aes(x=year, y=avg_add_taxi, colour=is_2020)) +
   geom_point(size=3) +
   geom_errorbar(width=.5, aes(ymin=lower_bound, ymax=upper_bound),  size= 1) + 
+  #add titles and subtitles using "\n" to space and align text
   labs( y= "Mean additional taxi-out time (minutes)", 
-       title="Average additional taxi-out time is significantly lower in 2020") + 
+        title="Flights took off significantly faster in 2020",
+        subtitle= "99% confidence intervals of mean additional taxi-out time across \nEuroControl member states (Between March and September)",
+        caption= "Source: Eurocontrol Network"
+  ) + 
   theme_minimal()+
   coord_flip()+
-   theme(
+  theme(
     axis.title.y = element_blank(),
     plot.title = element_text(color="black", size=16, face="bold"),
     plot.subtitle = element_text(color="black", size=14, face="plain"),
@@ -324,9 +361,52 @@ ggplot(taxi_out_time_plot, aes(x=year, y=avg_add_taxi, colour=is_2020)) +
   scale_color_manual(values= c("#636363","#2c7fb8"))
 
 
-taxi_out_time %>% 
-  group_by(year) %>% 
- summarise(n())
+```
+```{r, message=FALSE, warning=FALSE, fig.width=12, fig.height=8}
+
+
+taxi_out_time_apt <- taxi_out_time %>% 
+  filter(year %in% c(2019,2020)) %>% 
+  pivot_wider(names_from = "year", values_from= "avg_additional_taxi") %>% 
+  mutate(airport_w_code= paste(apt_name, "-", apt_icao)) %>% 
+  group_by(airport_w_code, month_num) %>% 
+  rename(pre_covid_t="2019",
+         covid_t="2020") %>% 
+  summarise( pre_covid_t = max(pre_covid_t, na.rm=TRUE),
+             covid_t = max(covid_t, na.rm=TRUE)
+  ) %>% 
+  filter(is.finite(covid_t), is.finite(pre_covid_t)) %>% 
+  group_by(airport_w_code) %>% 
+  summarise(mean_covid_t= mean(covid_t),
+            mean_pre_covid_t= mean(pre_covid_t),
+            count=n(),
+            percentage_change= (mean_covid_t- mean_pre_covid_t)/mean_pre_covid_t
+  ) %>% 
+  filter(count==7) %>% 
+  arrange(percentage_change) %>% 
+  head(10)
+
+
+ggplot(taxi_out_time_apt, aes(x=fct_reorder(airport_w_code, percentage_change, .desc = TRUE), y=percentage_change))+
+  geom_col()+
+  coord_flip()+
+  labs(
+    title="Top 10 airports that saw the largest decrease in additional taxi-out time",
+    subtitle= "Percentage change in mean additional taxi-out time between 2020 and 2019 (March to September) \n",
+    caption= "Source: Eurocontrol Network"
+  ) + 
+  theme_minimal()+
+  theme(
+    axis.title.y = element_blank(),
+    axis.title.x = element_blank(),
+    plot.title = element_text(color="black", size=16, face="bold"),
+    plot.subtitle = element_text(color="black", size=14, face="plain"),
+    axis.text.x = element_text(color="black", size=13, face="plain"),
+    axis.text.y= element_text(color="black", size=13, face="plain"),
+  )+
+  scale_y_continuous(labels = scales::percent)
+
+
 
 ```
 
