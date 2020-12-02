@@ -7,72 +7,73 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r, include=FALSE}
 
 library(tidyverse)
 library(ggplot2)
 library(scales)
+library(dplyr)
 
 ```
 
-# Establish database
+# Visualise the number of confirmed cases database
 
-Extract data from file "monthly_covid_data.xlsx" to establish a database for the number of  confirmed cases in selected countries.
-
+## Extract data from file "monthly_covid_data.xlsx" to establish a database for the number of confirmed cases in selected countries.
 ```{r}
 rm(list=ls())
-# Load data
-confirmed_case <- readxl::read_xlsx("data/monthly_covid_confirmed_cases_selected.xlsx")
+
+confirmed_case <- readxl::read_xlsx("data/monthly_covid_confirmed_cases_per1000_selected.xlsx")
+
 confirmed_case <- as.data.frame(confirmed_case[1:10,1:12])
+
 colnames(confirmed_case)[1] <- c("month")
 confirmed_case[,1] <- c("01","02","03","04","05","06","07","08","09","10")
 
 # Convert the dataframe into tidy form
 tidy_confirmed_case  <- confirmed_case %>% 
-  pivot_longer(cols="South_Africa":"Brazil",
-               names_to = "Country", 
-               values_to = "confirmed_cases")
+  pivot_longer(cols="South_Africa":"Australia",
+               names_to = "country", 
+               values_to = "confirmed_cases_per_1000")
 
 ```
 
 ## Identify countries that are experiencing the second wave
-
 ```{r}
 # plot the confirmed cases in several countries around the world
-
 ggplot(tidy_confirmed_case, 
-       aes(x=month, y=confirmed_cases, group = Country, color = Country)) + 
+       aes(x=month, 
+           y=confirmed_cases_per_1000, 
+           group = country, 
+           color = country)) + 
   geom_line(size=1)+
-  # geom_path()+
-  # geom_point()+
   theme_bw()+
   labs(
     title = "Monthly confirmed cases per country",
-    y="confirmed_cases",
+    y="confirmed_cases_per_1000",
     color= "Countries"
   )+
   theme(
-    axis.title.x=element_blank(),
+    axis.title.x = element_blank(),
     legend.title = element_blank()
   )+
  scale_y_continuous(label = comma) 
 
 # exclude countries that are still experiencing the first wave, plot again
 confirmed_case_selected <-
-  confirmed_case[,c("month","Italy","France","Spain","German","UK")]
+  confirmed_case[,c("month","Italy","France","Spain","Germany","UK","Belgium")]
 
 tidy_confirmed_case_selected  <- confirmed_case_selected %>% 
-  pivot_longer(cols="Italy":"UK",
-               names_to = "Country", 
-               values_to = "confirmed_cases")
+  pivot_longer(cols="Italy":"Belgium",
+               names_to = "country", 
+               values_to = "confirmed_cases_per_1000")
 
 ggplot(tidy_confirmed_case_selected, 
-       aes(x=month, y=confirmed_cases, group = Country, color = Country)) + 
+       aes(x=month, y=confirmed_cases_per_1000, group = country, color = country)) + 
   geom_line(size=1)+
   theme_bw()+
   labs(
     title = "Monthly confirmed cases in countris experiencing the second wave",
-    y="confirmed_cases",
+    y="confirmed_cases_per_1000",
     color= "Countries"
   )+
   theme(
@@ -83,38 +84,220 @@ ggplot(tidy_confirmed_case_selected,
 
 ```
 
-## compare total flights and confirmed cases in selected countries 
+
+
+# create the databse of the absolute number of airflights per route
 ```{r}
-# import the flights data
+airpo_info <- as.data.frame(
+  readxl::read_xlsx(
+    "data/Num_flights_per_route_per_month_top10kroutes_airport_info.xlsx")[,-2])
 
-number_flights <- as.data.frame(readxl::read_xlsx("data/Num_flights_per_country_by_routes.xlsx"))
-number_flights[,1] <- c("01","02","03","04","05","06","07","08","09","10")
+colnames(airpo_info)[1] <- 'Route'
 
-tidy_number_flights  <- number_flights %>% 
+routes_info <- as.data.frame(
+  readxl::read_xlsx(
+    "data/Num_flights_per_route_per_month_top10kroutes_wide.xlsx")[13:22,])
+
+routes_info[,1] <- c("01","02","03","04","05","06","07","08","09","10")
+
+tidy_routes_info  <- routes_info %>% 
   pivot_longer(
-               cols="France":"German",
-               names_to = "Country", 
+               cols=2:10001,
+               names_to = "Route", 
                values_to= "number_of_flights"
   ) 
-tidy_number_flights <- tidy_number_flights %>%
-  rename(month=Month)
-
-combined_data <- left_join(tidy_number_flights,tidy_confirmed_case_selected,by=c("month","Country"))
+colnames(tidy_routes_info)[1] <- 'Month'
 
 
-combined_data %>%
-  ggplot(aes(x=month))+
-  geom_line(aes(y=number_flights)) +
-  geom_line(aes(y=confirmed_cases/2)) + # rescale this variable
-  geom_line(size=1) +
-  facet_wrap(~Country)+
-  labs(
-    title = "Trend contrast"
-  )+
-  theme(
-    axis.title.x=element_blank(),
-    legend.title = element_blank())+
-    scale_y_continuous(label = comma, sec.axis = sec_axis(~./5, name = "Flights"))
+combined_airport_info <- left_join(tidy_routes_info,
+                           airpo_info,
+                           by=c("Route"))
 
+combined_airport_info$number_of_flights <- as.numeric(
+  combined_airport_info$number_of_flights)
+combined_airport_info$orig_ctry <- as.character(combined_airport_info$orig_ctry)
 
 ```
+
+## total number of routes per country
+```{r}
+flights_number_per_country <- combined_airport_info %>% 
+  group_by(Month, orig_ctry) %>% 
+  summarise(monthly_volume = sum(number_of_flights))
+
+flights_number_selected <- flights_number_per_country %>% 
+  filter(orig_ctry=="FR"|
+           orig_ctry=="GB"|
+           orig_ctry=="ES"|
+           orig_ctry=="DE"|
+           orig_ctry=="US"|
+           orig_ctry=="IN")
+colnames(flights_number_selected)[1] <- 'month'
+colnames(flights_number_selected)[2] <- 'country'
+
+```
+
+# generate combined dataset for next step visualisation
+```{r}
+countries_selected <-
+  confirmed_case[,c("month","India","France","Spain","Germany","UK","US")]
+
+countries_selected_tidy <- countries_selected %>% 
+  pivot_longer(
+               cols="India":"US",
+               names_to = "country", 
+               values_to= "confirmed_cases_per_1000"
+  ) 
+
+flights_number_selected$country[flights_number_selected$country=="DE"]<-"Germany"
+flights_number_selected$country[flights_number_selected$country=="FR"]<-"France"
+flights_number_selected$country[flights_number_selected$country=="ES"]<-"Spain"
+flights_number_selected$country[flights_number_selected$country=="GB"]<-"UK"
+flights_number_selected$country[flights_number_selected$country=="IN"]<-"India"
+
+selected_countries_covid <-
+  confirmed_case[,c("month","US","France","Spain","Germany","India","UK")]
+
+selected_countries_covid_tidy  <- selected_countries_covid %>% 
+  pivot_longer(cols="US":"UK",
+               names_to = "country", 
+               values_to = "confirmed_cases_per_1000")
+
+combined_data <- left_join(flights_number_selected,
+                           selected_countries_covid_tidy,
+                           by=c("month","country"))
+
+combined_data$monthly_volume <- as.numeric(
+  combined_data$monthly_volume)
+combined_data$confirmed_cases_per_1000 <- as.numeric(
+  combined_data$confirmed_cases_per_1000)
+
+# separate data set to see countries that are experiencing different stages of COVID
+combined_data_2nd_wave <- data.frame(combined_data %>% 
+  filter((country=="France"|
+           country=="UK"|
+           country=="Spain"|
+           country=="Germany")))
+
+combined_data_india <- data.frame(combined_data %>% 
+  filter((country=="India")))
+
+combined_data_us <- data.frame(combined_data %>% 
+  filter((country=="US")))
+
+```
+
+
+# final visualise - contrast the trends
+
+## plot for countries that are experiencing the second wave
+```{r}
+# rescale this variable
+# combined_data$number_of_flights = combined_data$number_of_flights
+
+#plot
+ggplot(data = combined_data_2nd_wave)+
+  geom_line(aes(x = month, 
+                y = monthly_volume*3.5, #rescale
+                group = country, 
+                color = "blue"),
+            size=0.8) +
+  geom_line(aes(x = month, 
+                y = confirmed_cases_per_1000*105, #rescale for better visualisation
+                group = country,
+                color = "red"),
+            size=0.8) +
+  geom_rect(aes(xmin=3,xmax=4,ymin=-Inf, ymax=Inf),
+            fill='orange',
+            alpha=0.03)+
+    geom_rect(aes(xmin=9,xmax=10,ymin=-Inf, ymax=Inf),
+            fill='orange',
+            alpha=0.03)+
+  facet_wrap(~country)+
+  theme(scale_y_continuous(label = comma, 
+                           sec.axis = sec_axis(~./5, name = "Flights")))+
+  labs(title = "Trend contrast")+
+  theme_bw()+
+  ylab("")+
+  scale_colour_discrete(labels=c("number_of_flights","confirmed_cases per 1000"))+
+    theme(axis.title.x = element_blank(),
+        # axis.ticks.y = element_blank(),
+        legend.title = element_blank(),
+        # axis.text.y = element_blank(),
+        legend.position = 'bottom')
+  
+
+```
+## plot for US & India
+```{r}
+
+ggplot(data = combined_data_us)+
+  geom_line(aes(x = month, 
+                y = monthly_volume, 
+                color = "blue", 
+                group = 1),
+            size=0.8) +
+  geom_line(aes(x = month, 
+                y = confirmed_cases_per_1000*105, #rescale for better visualisation
+                color = "red",
+                group = 1),
+            size=0.8) +
+  geom_rect(aes(xmin=3,
+                xmax=4,
+                ymin=-Inf, 
+                ymax=Inf),
+            fill='orange',
+            alpha=0.03)+
+    geom_rect(aes(xmin=9,
+                  xmax=10,
+                  ymin=-Inf, 
+                  ymax=Inf),
+            fill='orange',
+            alpha=0.03)+
+  facet_wrap(~country)+
+  labs(title = "Trend contrast")+
+  theme_bw()+
+  ylab("")+
+  scale_colour_discrete(labels=c("number_of_flights","confirmed_cases per 1000"))+
+  theme(axis.title.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.title = element_blank(),
+        axis.text.y = element_blank(),
+        legend.position = 'bottom')
+
+#plot for India
+ggplot(data = combined_data_india)+
+  geom_line(aes(x = month, 
+                y = monthly_volume*3.5, #rescale for better visualisation
+                group = 1,
+                color = "blue"),
+            size=0.8) +
+  geom_line(aes(x = month, 
+                y = confirmed_cases_per_1000*105, #rescale for better visualisation
+                group = 1,
+                color = "red"),
+            size=0.8) +
+  geom_rect(aes(xmin=3,
+                xmax=4,
+                ymin=-Inf, 
+                ymax=Inf),
+            fill='orange',
+            alpha=0.03)+
+    geom_rect(aes(xmin=9,
+                  xmax=10,
+                  ymin=-Inf, 
+                  ymax=Inf),
+            fill='orange',
+            alpha=0.03)+
+  facet_wrap(~country)+
+  labs(title = "Trend contrast")+
+  theme_bw()+
+  ylab("")+
+  scale_colour_discrete(labels=c("number_of_flights","confirmed cases per 1000"))+
+  theme(axis.title.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.title = element_blank(),
+        axis.text.y = element_blank(),
+        legend.position = 'bottom')
+```
+
