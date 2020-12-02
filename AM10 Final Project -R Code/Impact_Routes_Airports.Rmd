@@ -66,9 +66,9 @@ airports <- airport_data %>%
 #visualization 1 - %change per aiport and month
 vis1 <- airports %>%
   ggplot(aes(x=(year), y=as.numeric(value))) +
-   geom_col(width = 0.5, fill="#000088") +
+   geom_col(width = 0.5, fill="#2c7fb8") +
   facet_wrap(~airport, ncol = 3, labeller = labeller(airport = c("EDDF" = "Frankfurt am Main Airport", "EGLL" = "London Heathrow Airport","KJFK" = "John F Kennedy International Airport", "SBGR" = "Guarulhos Sao Paulo", "VIDP" = "Indira Gandhi International Airport", "FACT" = "Cape Town International Aiport"))) +
-  geom_hline(yintercept=0, color="orange") +
+  geom_hline(yintercept=0, color="#c6102f") +
   theme_minimal() +
   labs(title= "Percentage change in flight volume between 2020 and 2019, \nby month", subtitle = "Comparison among 5 international airports", x= "", y="") +
   scale_x_discrete(labels = c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct")) +
@@ -114,8 +114,8 @@ filter(route=="SBGR-EGLL" | route=="EGLL-SBGR" )
 vis2 <- route_test %>%
   ggplot() +
   geom_col(aes(x=(year), y=as.numeric(value), width = 0.5, fill=(route)), position = position_dodge()) +
-  scale_fill_manual(values = c("#000088", "#2c7fb8"), name="", label= c("Sao Paulo - London", "London - Sao Paulo")) +
-  geom_hline(yintercept=0, color="orange") +
+  scale_fill_manual(values = c("#001f62", "#2c7fb8"), name="", label= c("Sao Paulo - London", "London - Sao Paulo")) +
+  geom_hline(yintercept=0, color="#c6102f") +
   coord_cartesian (ylim = c(-1, 0.5)) +
   theme_minimal() +
   labs( x= "", y="") +
@@ -133,8 +133,8 @@ filter(route=="EDDF-EGLL"| route=="EGLL-EDDF" )
 vis3 <- route_test3 %>%
   ggplot() +
   geom_col(aes(x=(year), y=as.numeric(value), width = 0.5, fill=(route)), position = position_dodge()) +
-  scale_fill_manual(values = c("#000088", "#2c7fb8"), name="", label= c("Frankfurt - London", "London - Frankfurt")) +
-  geom_hline(yintercept=0, color="orange") +
+  scale_fill_manual(values = c("#001f62", "#2c7fb8"), name="", label= c("Frankfurt - London", "London - Frankfurt")) +
+  geom_hline(yintercept=0, color="#c6102f") +
   coord_cartesian (ylim = c(-1, 0.5)) +
   theme_minimal() +
   labs( x= "", y="") +
@@ -152,8 +152,8 @@ filter(route=="KJFK-EGLL" | route=="EGLL-KJFK" )
 vis4 <- route_test4 %>%
   ggplot() +
   geom_col(aes(x=(year), y=as.numeric(value), width = 0.5, fill=(route)), position = position_dodge()) +
-  scale_fill_manual(values = c("#000088", "#2c7fb8"), name="", label= c("New York - London", "London - New York")) +
-  geom_hline(yintercept=0, color="orange") +
+  scale_fill_manual(values = c("#001f62", "#2c7fb8"), name="", label= c("New York - London", "London - New York")) +
+  geom_hline(yintercept=0, color="#c6102f") +
   coord_cartesian (ylim = c(-1, 0.5)) +
   theme_minimal() +
   labs( x= "", y="") +
@@ -171,8 +171,8 @@ filter(route=="VIDP-EGLL" | route=="EGLL-VIDP" )
 vis5 <- route_test5 %>%
   ggplot() +
   geom_col(aes(x=(year), y=as.numeric(value), width = 0.5, fill=(route)), position = position_dodge()) +
-  scale_fill_manual(values = c("#000088", "#2c7fb8"), name="", label= c("Dehli - London", "London - Dehli")) +
-  geom_hline(yintercept=0, color="orange") +
+  scale_fill_manual(values = c("#001f62", "#2c7fb8"), name="", label= c("Dehli - London", "London - Dehli")) +
+  geom_hline(yintercept=0, color="#c6102f") +
   coord_cartesian (ylim = c(-1, 0.5)) +
   theme_minimal() +
   labs( x= "", y="") +
@@ -192,8 +192,8 @@ filter(route=="FACT-EGLL" | route=="EGLL-FACT" )
 vis6 <- route_test6 %>%
   ggplot() +
   geom_col(aes(x=(year), y=as.numeric(value), width = 0.5, fill=(route)), position = position_dodge()) +
-  scale_fill_manual(values = c("#000088", "#2c7fb8"), name="", label= c("Cape Town - London", "London - Cape Town")) +
-  geom_hline(yintercept=0, color="orange") +
+  scale_fill_manual(values = c("#001f62", "#2c7fb8"), name="", label= c("Cape Town - London", "London - Cape Town")) +
+  geom_hline(yintercept=0, color="#c6102f") +
   coord_cartesian (ylim = c(-1, 0.5)) +
   theme_minimal() +
   labs( x= "", y="") +
