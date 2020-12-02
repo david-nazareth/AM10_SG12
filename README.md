@@ -12,7 +12,7 @@ National lockdowns and government restrictions in response to COVID-19 grounded 
 
 3. Compare the impact that COVID-19 has had on commercial and private traffic 
 
-4. To visualise the impact on vertical flight efficiency, wait times and taxi-out time
+4. To visualise the impact on vertical flight efficiency and taxi-out time
 
 
 ### Datasets:
