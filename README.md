@@ -14,7 +14,7 @@ National lockdowns and government restrictions in response to COVID-19 grounded 
 
 4. To visualise the impact on vertical flight efficiency and taxi-out time
 
-### Results of the analysis
+### Results of the analysis:
 
 1. Some of the longest and busiest air routes in the world saw flight volumes plummet compared to 2019’s numbers
 2. The impact of COVID-19 has been much broader and deeper compared to the 2010 air traffic crisis and flight volumes have not yet recovered
