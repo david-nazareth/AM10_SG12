@@ -60,13 +60,15 @@ airports <- airport_data %>%
   filter(airport=="SBGR" | airport=="EDDF" | airport=="EGLL" | airport=="KJFK" | airport=="VIDP" | airport=="FACT" ) %>%
  mutate(year = factor(year, levels=c("Jan_YTD","Feb_YTD", "Mar_YTD", 
                                           "Apr_YTD", "May_YTD", "Jun_YTD", 
-                                          "Jul_YTD", "Aug_YTD", "Sep_YTD", "Oct_YTD"), ordered=TRUE)) 
+                                          "Jul_YTD", "Aug_YTD", "Sep_YTD", "Oct_YTD"), ordered=TRUE)) %>%
+  mutate(positive = as.numeric(value) >0)
 
 
 #visualization 1 - %change per aiport and month
 vis1 <- airports %>%
-  ggplot(aes(x=(year), y=as.numeric(value))) +
-   geom_col(width = 0.5, fill="#2c7fb8") +
+  ggplot(aes(x=(year), y=as.numeric(value), fill = positive)) +
+   geom_col(width = 0.5, stat = "identity") +
+  scale_fill_manual(values = c("#001f62", "#2c7fb8"), name="") + 
   facet_wrap(~airport, ncol = 3, labeller = labeller(airport = c("EDDF" = "Frankfurt am Main Airport", "EGLL" = "London Heathrow Airport","KJFK" = "John F Kennedy International Airport", "SBGR" = "Guarulhos Sao Paulo", "VIDP" = "Indira Gandhi International Airport", "FACT" = "Cape Town International Aiport"))) +
   geom_hline(yintercept=0, color="#c6102f") +
   theme_minimal() +
@@ -74,7 +76,7 @@ vis1 <- airports %>%
   scale_x_discrete(labels = c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct")) +
   scale_y_continuous(labels = scales::percent) +
   theme(plot.margin = unit(c(0, 0, 0, 0), "cm"), strip.text.x = element_text(size = 12, face = "bold", vjust =1), title =element_text(size=16, face='bold', vjust =1, ), plot.subtitle =element_text(size=14, vjust =1), axis.text.x = element_text(color="black", size=13, face="plain"),
-    axis.text.y= element_text(color="black", size=13, face="plain"), panel.spacing = unit(2, "lines") )
+    axis.text.y= element_text(color="black", size=13, face="plain"), panel.spacing = unit(2, "lines"), legend.position = "none" )
 vis1
  
 ```
@@ -118,6 +120,8 @@ vis2 <- route_test %>%
   geom_hline(yintercept=0, color="#c6102f") +
   coord_cartesian (ylim = c(-1, 0.5)) +
   theme_minimal() +
+  annotate("segment", x = 8, xend = 8, y = 0.4, yend = 1, color="#c6102f", arrow = arrow(ends="first", type = "closed" )) +
+  annotate("segment", x = 9, xend = 9, y = 0.4, yend = 1, color="#c6102f", arrow = arrow(ends="first", type = "closed" )) +
   labs( x= "", y="") +
   scale_x_discrete(labels = c("Jan", "Feb", "Mar", "April", "May", "Jun", "Jul", "Aug", "Sep", "Oct")) +
    theme(axis.title.x = element_blank(), axis.title.y = element_blank()) +
@@ -180,7 +184,8 @@ vis5 <- route_test5 %>%
    theme(axis.title.x = element_blank(), axis.title.y = element_blank()) +
    scale_y_continuous(labels = scales::percent) +
   theme(plot.margin = unit(c(1, 1, 0, 0), "cm"), strip.text.x = element_text(size = 12, face = "bold"), title =element_text(size=14, face='bold'), 
-        plot.subtitle =element_text(size=13), legend.position = "top", legend.text = element_text(size=10, face="bold"))
+        plot.subtitle =element_text(size=13), legend.position = "top", legend.text = element_text(size=10, face="bold")) 
+
 vis5
 
 
