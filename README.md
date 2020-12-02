@@ -6,11 +6,14 @@
 
 National lockdowns and government restrictions in response to COVID-19 grounded commercial airlines in many parts of the world in the first half of 2020. We aim to visualize the impact of COVID-19 on the airline industry by creating a series of static, dynamic and interactive plots. The main objectives of this project are as follows:
 
-1. Visualise the impact of COVID-19 and government policy (travel restrictions) on all types of air traffic (commercial short/long haul, private, emergency services, military, cargo etc.) by creating time series and geospatial visualisations. 
+1. To visualise the impact that the pandemic has had on some major airports and international routes
 
 2. Compare the impact of the pandemic on air traffic to previous crises in the airline industry such as the aftermath of the Eyjafjallajökull volcano eruption in April 2010.
 
-3. To visualise the impact on vertical flight efficiency and additonal taxi-out time
+3. Compare the impact that COVID-19 has had on commercial and private traffic 
+
+4. To visualise the impact on vertical flight efficiency, wait times and taxi-out time
+
 
 ### Datasets:
 
