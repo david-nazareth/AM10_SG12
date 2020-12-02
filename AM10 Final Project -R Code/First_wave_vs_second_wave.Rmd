@@ -198,32 +198,31 @@ combined_data_us <- data.frame(combined_data %>%
 #plot
 ggplot(data = combined_data_2nd_wave)+
   geom_line(aes(x = month, 
-                y = monthly_volume*3.5, #rescale
+                y = monthly_volume,
                 group = country, 
                 color = "blue"),
             size=0.8) +
   geom_line(aes(x = month, 
-                y = confirmed_cases_per_1000*105, #rescale for better visualisation
+                y = confirmed_cases_per_1000*18, # rescale
                 group = country,
                 color = "red"),
             size=0.8) +
+  facet_wrap(~country)+
+  ylab("number of flights")+
+  theme_bw()+
+  scale_y_continuous(limits = c(0,60000),
+                           sec.axis = sec_axis(~./18, #divide the number multiplied in rescale step
+                                               name = "number of cases per 1000",))+
   geom_rect(aes(xmin=3,xmax=4,ymin=-Inf, ymax=Inf),
             fill='orange',
             alpha=0.03)+
-    geom_rect(aes(xmin=9,xmax=10,ymin=-Inf, ymax=Inf),
-            fill='orange',
+  geom_rect(aes(xmin=9,xmax=10,ymin=-Inf, ymax=Inf),
+            fill='red',
             alpha=0.03)+
-  facet_wrap(~country)+
-  theme(scale_y_continuous(label = comma, 
-                           sec.axis = sec_axis(~./5, name = "Flights")))+
   labs(title = "Trend contrast")+
-  theme_bw()+
-  ylab("")+
-  scale_colour_discrete(labels=c("number_of_flights","confirmed_cases per 1000"))+
-    theme(axis.title.x = element_blank(),
-        # axis.ticks.y = element_blank(),
+  scale_colour_discrete(labels=c("monthly air traffic volume","daily confirmed cases per 1000"))+
+    theme(
         legend.title = element_blank(),
-        # axis.text.y = element_blank(),
         legend.position = 'bottom')
   
 
@@ -238,10 +237,14 @@ ggplot(data = combined_data_us)+
                 group = 1),
             size=0.8) +
   geom_line(aes(x = month, 
-                y = confirmed_cases_per_1000*105, #rescale for better visualisation
+                y = confirmed_cases_per_1000*170,
                 color = "red",
                 group = 1),
             size=0.8) +
+  scale_y_continuous(label = comma,
+                     limits = c(0,500000),
+                     sec.axis = sec_axis(~./170, #divide the number multiplied in rescale step
+                                         name = "number of cases per 1000",))+
   geom_rect(aes(xmin=3,
                 xmax=4,
                 ymin=-Inf, 
@@ -252,31 +255,33 @@ ggplot(data = combined_data_us)+
                   xmax=10,
                   ymin=-Inf, 
                   ymax=Inf),
-            fill='orange',
+            fill='red',
             alpha=0.03)+
   facet_wrap(~country)+
+  ylab("number of flights")+
   labs(title = "Trend contrast")+
   theme_bw()+
-  ylab("")+
-  scale_colour_discrete(labels=c("number_of_flights","confirmed_cases per 1000"))+
-  theme(axis.title.x = element_blank(),
-        axis.ticks.y = element_blank(),
+  scale_colour_discrete(labels=c("monthly air traffic volume","daily confirmed cases per 1000"))+
+    theme(
         legend.title = element_blank(),
-        axis.text.y = element_blank(),
         legend.position = 'bottom')
 
 #plot for India
 ggplot(data = combined_data_india)+
   geom_line(aes(x = month, 
-                y = monthly_volume*3.5, #rescale for better visualisation
+                y = monthly_volume, 
                 group = 1,
                 color = "blue"),
             size=0.8) +
   geom_line(aes(x = month, 
-                y = confirmed_cases_per_1000*105, #rescale for better visualisation
+                y = confirmed_cases_per_1000*30, #rescale for better visualisation
                 group = 1,
                 color = "red"),
             size=0.8) +
+  scale_y_continuous(label = comma,
+                     limits = c(0,30000),
+                     sec.axis = sec_axis(~./30, #divide the number multiplied in rescale step
+                                         name = "number of cases per 1000",))+
   geom_rect(aes(xmin=3,
                 xmax=4,
                 ymin=-Inf, 
@@ -287,17 +292,15 @@ ggplot(data = combined_data_india)+
                   xmax=10,
                   ymin=-Inf, 
                   ymax=Inf),
-            fill='orange',
+            fill='red',
             alpha=0.03)+
   facet_wrap(~country)+
+  ylab("number of flights")+
   labs(title = "Trend contrast")+
   theme_bw()+
-  ylab("")+
-  scale_colour_discrete(labels=c("number_of_flights","confirmed cases per 1000"))+
-  theme(axis.title.x = element_blank(),
-        axis.ticks.y = element_blank(),
+  scale_colour_discrete(labels=c("monthly air traffic volume","daily confirmed cases per 1000"))+
+    theme(
         legend.title = element_blank(),
-        axis.text.y = element_blank(),
         legend.position = 'bottom')
 ```
 
