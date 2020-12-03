@@ -159,7 +159,7 @@ ggplot(air_crises, aes(x=date, y=value, color=line))+
     color="Year"
   )+
   #define color and labels manually
-  scale_color_manual(values= c("#3288bd","#1a9850" ,"#762a83"), labels = c("2010", "2019", "2020"))+
+  scale_color_manual(values= c("#001f62","#636363","#c6102f"), labels = c("2010", "2019", "2020"))+
   #adding a text annotation to draw attention to the 2010 crises
   annotate("text", x= as.Date("2020-05-20"), y=20000, label= "Air travel disruption \nafter 2010 eruptions of \nEyjafjallajökull ") +
   #cleaning up 0's on the y axis
