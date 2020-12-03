@@ -22,7 +22,7 @@ library(dplyr)
 ```{r}
 rm(list=ls())
 
-confirmed_case <- readxl::read_xlsx("data/monthly_covid_confirmed_cases_per1000_selected.xlsx")
+confirmed_case <- readxl::read_xlsx("Data/monthly_covid_confirmed_cases_per1000_selected.xlsx")
 
 confirmed_case <- as.data.frame(confirmed_case[1:10,1:12])
 
@@ -60,12 +60,12 @@ ggplot(tidy_confirmed_case,
     axis.title.x = element_blank(),
     legend.title = element_blank(),
     plot.margin = unit(c(0, 0, 0, 0), "cm"), 
-        strip.text.x = element_text(size = 11, face = "bold", vjust =1), 
-        title =element_text(size=16, face='bold', vjust =1, ), 
-        plot.subtitle =element_text(size=14, vjust =1), 
-        axis.text.x = element_text(color="black", size=10, face="plain"),
-        axis.text.y= element_text(color="black", size=11, face="plain"), 
-        panel.spacing = unit(2, "lines")
+    strip.text.x = element_text(size = 11, face = "bold", vjust =1), 
+    title =element_text(size=16, face='bold', vjust =1, ), 
+    plot.subtitle =element_text(size=14, vjust =1), 
+    axis.text.x = element_text(color="black", size=10, face="plain"),
+    axis.text.y= element_text(color="black", size=11, face="plain"), 
+    panel.spacing = unit(2, "lines")
   )
 
 # exclude countries that are still experiencing the first wave, plot again
@@ -83,7 +83,7 @@ ggplot(tidy_confirmed_case_selected,
   theme_bw()+
   labs(
     title = 
-    "Monthly confirmed cases in countris under 
+      "Monthly confirmed cases in countris under 
     the second wave",
     y="confirmed cases per 100k",
     color= "Countries"
@@ -97,12 +97,12 @@ ggplot(tidy_confirmed_case_selected,
     axis.title.x=element_blank(),
     legend.title = element_blank(),
     plot.margin = unit(c(0, 0, 0, 0), "cm"), 
-        strip.text.x = element_text(size = 11, face = "bold", vjust =1), 
-        title =element_text(size=16, face='bold', vjust =1, ), 
-        plot.subtitle =element_text(size=14, vjust =1), 
-        axis.text.x = element_text(color="black", size=10, face="plain"),
-        axis.text.y= element_text(color="black", size=11, face="plain"), 
-        panel.spacing = unit(2, "lines"),
+    strip.text.x = element_text(size = 11, face = "bold", vjust =1), 
+    title =element_text(size=16, face='bold', vjust =1, ), 
+    plot.subtitle =element_text(size=14, vjust =1), 
+    axis.text.x = element_text(color="black", size=10, face="plain"),
+    axis.text.y= element_text(color="black", size=11, face="plain"), 
+    panel.spacing = unit(2, "lines"),
     legend.position = "bottom"
   )
 ```
@@ -113,28 +113,28 @@ ggplot(tidy_confirmed_case_selected,
 ```{r}
 airpo_info <- as.data.frame(
   readxl::read_xlsx(
-    "data/Num_flights_per_route_per_month_top10kroutes_airport_info.xlsx")[,-2])
+    "Data/Num_flights_per_route_per_month_top10kroutes_airport_info.xlsx")[,-2])
 
 colnames(airpo_info)[1] <- 'Route'
 
 routes_info <- as.data.frame(
   readxl::read_xlsx(
-    "data/Num_flights_per_route_per_month_top10kroutes_wide.xlsx")[13:22,])
+    "Data/Num_flights_per_route_per_month_top10kroutes_wide.xlsx")[13:22,])
 
 routes_info[,1] <- c("01","02","03","04","05","06","07","08","09","10")
 
 tidy_routes_info  <- routes_info %>% 
   pivot_longer(
-               cols=2:10001,
-               names_to = "Route", 
-               values_to= "number_of_flights"
+    cols=2:10001,
+    names_to = "Route", 
+    values_to= "number_of_flights"
   ) 
 colnames(tidy_routes_info)[1] <- 'Month'
 
 
 combined_airport_info <- left_join(tidy_routes_info,
-                           airpo_info,
-                           by=c("Route"))
+                                   airpo_info,
+                                   by=c("Route"))
 
 combined_airport_info$number_of_flights <- as.numeric(
   combined_airport_info$number_of_flights)
@@ -167,8 +167,8 @@ rebase_benchmark <- flights_number_selected %>%
   select (country, rebasenumber)
 
 rebase_benchmark1 <- left_join(flights_number_selected,
-                           rebase_benchmark,
-                           by=c("country"))
+                               rebase_benchmark,
+                               by=c("country"))
 
 rebased_flight_number <- rebase_benchmark1 %>% 
   mutate (rebased_number_of_flight = monthly_volume / rebasenumber ) %>% 
@@ -182,9 +182,9 @@ countries_selected <-
 
 countries_selected_tidy <- countries_selected %>% 
   pivot_longer(
-               cols="India":"US",
-               names_to = "country", 
-               values_to= "confirmed_cases_per_100k"
+    cols="India":"US",
+    names_to = "country", 
+    values_to= "confirmed_cases_per_100k"
   ) 
 
 rebased_flight_number$country[rebased_flight_number$country=="DE"] <- "Germany"
@@ -212,16 +212,16 @@ combined_data$confirmed_cases_per_100k <- as.numeric(
 
 # separate data set to see countries that are experiencing different stages of COVID
 combined_data_2nd_wave <- data.frame(combined_data %>% 
-  filter((country=="France"|
-           country=="UK"|
-           country=="Spain"|
-           country=="Germany")))
+                                       filter((country=="France"|
+                                                 country=="UK"|
+                                                 country=="Spain"|
+                                                 country=="Germany")))
 
 combined_data_india <- data.frame(combined_data %>% 
-  filter((country=="India")))
+                                    filter((country=="India")))
 
 combined_data_us <- data.frame(combined_data %>% 
-  filter((country=="US")))
+                                 filter((country=="US")))
 
 ```
 
@@ -248,9 +248,9 @@ ggplot(data = combined_data)+
   facet_wrap(~country)+
   scale_y_continuous(limits = c(0,1.3),
                      label = percent,
-                           sec.axis = sec_axis(~.*2800, #divide the number multiplied in rescale step
-                                               name = "number of cases per 100k",))+
-  scale_x_discrete(labels = c("Jan","Feb","Mar","April","May","Jun","Aug","Sep","Oct","Nov"))+
+                     sec.axis = sec_axis(~.*2800, #divide the number multiplied in rescale step
+                                         name = "Number of cases per 100k",))+
+  scale_x_discrete(labels = c("Jan","Feb","Mar","Apr","May","Jun","Aug","Sep","Oct","Nov"))+
   geom_rect(aes(xmin=3,xmax=4,ymin=-Inf, ymax=1.3),
             fill='#E5E5E5',
             alpha=0.03)+
@@ -258,25 +258,25 @@ ggplot(data = combined_data)+
             fill='#E5E5E5',
             alpha=0.03)+
   ggtitle("Contrast the trend of confirmed cases and the number of flights",
-          "How they are changing from the first peak to now?")+
-  scale_color_manual(values= c("#001F62","#c6102f"), labels=c("Number of flights per month","Daily confirmed cases per 100k"))+
+          "How are they changing from the first peak to now?")+
+  scale_color_manual(values= c("#001F62","#c6102f"), labels=c("Change in traffic volume","Daily confirmed cases per 100k"))+
   geom_hline(yintercept=1, 
              color="#B6B6B6", 
              size = 0.5,
              linetype = 5) +
   theme_minimal()+
   theme(
-        axis.title.x = element_blank(),
-        legend.text = element_text(color="black", size=12, face="plain"), 
-        plot.margin = unit(c(0, 0, 0, 0), "cm"), 
-        strip.text.x = element_text(size = 11, face = "bold", vjust =1), 
-        title = element_text(size=16, face='bold', vjust =1, ), 
-        plot.subtitle = element_text(size=14, vjust =1), 
-        axis.text.x = element_text(color="black", size=11, face="plain"),
-        axis.text.y= element_text(color="black", size=11, face="plain"), 
-        panel.spacing = unit(2, "lines"),
-        legend.title = element_blank(),
-        legend.position = "bottom")+
-  ylab("change in traffic volume")
+    axis.title.x = element_blank(),
+    legend.text = element_text(color="black", size=12, face="plain"), 
+    plot.margin = unit(c(0, 0, 0, 0), "cm"), 
+    strip.text.x = element_text(size = 11, face = "bold", vjust =1), 
+    title = element_text(size=16, face='bold', vjust =1, ), 
+    plot.subtitle = element_text(size=14, vjust =1), 
+    axis.text.x = element_text(color="black", size=11, face="plain"),
+    axis.text.y= element_text(color="black", size=11, face="plain"), 
+    panel.spacing = unit(2, "lines"),
+    legend.title = element_blank(),
+    legend.position = "bottom")+
+  ylab("Change in traffic volume")
 
 ```
