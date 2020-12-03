@@ -35,7 +35,7 @@ library(grid)
 
 ```{r cars}
 #dataset is already filtered for top 1000 airports and percentage change of travel volume is calculated for each months
-airport_data <- read_excel("Data/Num_flights_per_airport_per_month_top1k_20201127_014108.xlsx")
+airport_data <- read_excel("Num_flights_per_airport_per_month_top1k_20201127_014108.xlsx")
 
 skim(airport_data)
 
@@ -78,7 +78,7 @@ vis1
 # Routes Dataset
 
 ```{r pressure, echo=FALSE}
-route_data <- read_excel("Data/Num_flights_per_route_per_month_top10kroutes_20201127_011118.xlsx")
+route_data <- read_excel("Num_flights_per_route_per_month_top10kroutes_20201127_011118.xlsx")
 
 skim(route_data)
 
@@ -203,7 +203,7 @@ patchwork2 <- (vis2 + vis3 )/( vis4 + vis5)
 
 patchwork2 + plot_annotation(
   title = 'Percentage change in flight volume between 2020 and 2019, \nby month',
-  subtitle = 'Comparison among 5 international routes', theme = theme (plot.title = element_text(size = 16, face="bold"), plot.subtitle =element_text(size=13)))
+  subtitle = 'Comparison among 4 international routes', theme = theme (plot.title = element_text(size = 16, face="bold"), plot.subtitle =element_text(size=13)))
   
 
 
