@@ -30,7 +30,7 @@ National lockdowns and government restrictions in response to COVID-19 grounded 
 4. Time series plot comparing daily flight volumes in the Eurocontrol area between 2010 (eruption of Eyjafjallajökull) and 2020 (COVID-19)
 5. Dynamic bar chart in Tableau showing the increase in the traffic share of private planes during the pandemic
 6. Time series plots showing the impact of COVID-19 on vertical flight efficiency
-7. Plots of 99% confidence intervals for mean time in level flight during takeoff and landing between 2020 and 2019
+7. Plots of 99% confidence intervals for mean time in level flight during takeoff and landing between 2020, 2019 and 2018
 8. Plots of 99% confidence intervals for mean additional taxi-out time between 2020 and 2019
 9. Bar plots showing the top airports in Europe that saw the largest decrease in additional taxi-out time compared with 2019's numbers
 10. Contrasting the effect of the first and second wave on number of flights through time series plots
