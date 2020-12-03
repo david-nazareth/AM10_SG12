@@ -51,7 +51,7 @@ National lockdowns and government restrictions in response to COVID-19 grounded 
 
 3. [Reported cases of Covid-19, European Centre for Disease Prevention and Control](https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide)
 
-### Links to additional content
+### Links to additional content:
 
 1. [Beautiful geospatial visualisations by the Washington Post](https://www.washingtonpost.com/graphics/2020/business/coronavirus-airline-industry-collapse/)
 
