@@ -65,10 +65,10 @@ vis1 <- airports %>%
   facet_wrap(~airport, ncol = 3, labeller = labeller(airport = c("EDDF" = "Frankfurt am Main Airport", "EGLL" = "London Heathrow Airport","KJFK" = "John F Kennedy International Airport", "SBGR" = "Guarulhos Sao Paulo", "VIDP" = "Indira Gandhi International Airport", "FACT" = "Cape Town International Aiport"))) +
   geom_hline(yintercept=0, color="#c6102f") +
   theme_minimal() +
-  labs(title= "Percentage change in flight volume between 2020 and 2019, \nby month", subtitle = "Comparison among 5 international airports", x= "", y="") +
+  labs(title= "Percentage change in flight volume between 2020 and 2019, \nby month", subtitle = "Comparison among 6 international airports", x= "", y="") +
   scale_x_discrete(labels = c("Jan", "Feb", "Mar", "April", "May", "June", "July", "Aug", "Sep", "Oct")) +
   scale_y_continuous(labels = scales::percent) +
-  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"), strip.text.x = element_text(size = 12, face = "bold", vjust =1), title =element_text(size=16, face='bold', vjust =1, ), plot.subtitle =element_text(size=14, vjust =1), axis.text.x = element_text(color="black", size=13, face="plain"),
+  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"), strip.text.x = element_text(size = 12, face = "bold", vjust =1), title =element_text(size=16, face='bold', vjust =1, ), plot.subtitle =element_text(size=14, vjust =1, face="plain"), axis.text.x = element_text(color="black", size=13, face="plain"),
     axis.text.y= element_text(color="black", size=13, face="plain"), panel.spacing = unit(2, "lines"), legend.position = "none" )
 vis1
  
@@ -203,7 +203,7 @@ patchwork2 <- (vis2 + vis3 )/( vis4 + vis5)
 
 patchwork2 + plot_annotation(
   title = 'Percentage change in flight volume between 2020 and 2019, \nby month',
-  subtitle = 'Comparison among 4 international routes', theme = theme (plot.title = element_text(size = 16, face="bold"), plot.subtitle =element_text(size=13)))
+  subtitle = 'Comparison among 4 international routes', theme = theme (plot.title = element_text(size = 16, face="bold"), plot.subtitle =element_text(size=14)))
   
 
 
